@@ -3,8 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import { createClient } from '../utils/supabase/server';
-import { getURL } from '../utils/helpers';
+import { createClient } from '@/utils/supabase/server';
 
 export async function login(formData: FormData) {
     const supabase = await createClient();
@@ -19,7 +18,8 @@ export async function login(formData: FormData) {
     const { error } = await supabase.auth.signInWithPassword(data);
 
     if (error) {
-        redirect('/login?message=Could not authenticate user');
+        console.log(error);
+        redirect('/error');
     }
 
     revalidatePath('/', 'layout');
@@ -39,32 +39,10 @@ export async function signup(formData: FormData) {
     const { error } = await supabase.auth.signUp(data);
 
     if (error) {
-        redirect('/login?message=Error signing up');
+        console.log(error);
+        redirect('/error');
     }
 
     revalidatePath('/', 'layout');
-    redirect('/login');
+    redirect('/');
 }
-
-export async function signOut() {
-    const supabase = createClient();
-    (await supabase).auth.signOut();
-    redirect('/login');
-}
-
-// export async function oAuthSignIn() {
-//     const supabase = createClient();
-//     const redirectUrl = getURL('/auth/callback');
-//     const { data, error } = await supabase.auth.signInWithOAuth({
-//         provider: 'google',
-//         options: {
-//             redirectTo: redirectUrl,
-//         },
-//     });
-
-//     if (error) {
-//         redirect('/login?message=Could not authenticate user');
-//     }
-
-//     return redirect(data.url);
-// }
