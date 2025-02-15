@@ -19,15 +19,16 @@ export default function LoginForm() {
         });
         if (error) {
             console.log(error);
-            return;
         } else {
-            redirect(data.url);
+            return redirect(data.url);
         }
         // landing page?
     };
     return (
-        <form action={signIn} className="flex-1 flex min-h-screen justify-center items-center">
-            <button className="hover:bg-gray-800 p-8 rounded-xl">Sign in with GitHub</button>
-        </form>
+        <div className="flex-1 flex min-h-screen justify-center items-center">
+            <button className="hover:bg-gray-800 p-8 rounded-xl" onClick={signIn}>
+                Sign in with GitHub
+            </button>
+        </div>
     );
 }
