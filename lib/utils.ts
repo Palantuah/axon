@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export type SearchGroupId = 'web' | 'academic'  | 'youtube' | 'x' | 'analysis' | 'fun' | 'extreme' ;
+export type SearchGroupId = 'web' | 'academic' | 'x' | 'fun' | 'extreme';
 
 export const searchGroups = [
   {

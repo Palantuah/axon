@@ -4,14 +4,10 @@ import 'katex/dist/katex.min.css';
 
 import { BorderTrail } from '@/components/core/border-trail';
 import { TextShimmer } from '@/components/core/text-shimmer';
-import { FlightTracker } from '@/components/flight-tracker';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import InteractiveChart from '@/components/interactive-charts';
 import { MapComponent, MapContainer } from '@/components/map-components';
-import TMDBResult from '@/components/movie-info';
 import MultiSearch from '@/components/multi-search';
-import NearbySearchMapView from '@/components/nearby-search-map-view';
-import TrendingResults from '@/components/trending-tv-movies-results';
 import {
     Accordion,
     AccordionContent,
@@ -112,7 +108,6 @@ import {
 } from './actions';
 import { TrendingQuery } from './api/trending/route';
 import InteractiveStockChart from '@/components/interactive-stock-chart';
-import { CurrencyConverter } from '@/components/currency_conv';
 import { ReasoningUIPart, ToolInvocationUIPart, TextUIPart } from '@ai-sdk/ui-utils';
 import {
     Dialog,
@@ -1195,7 +1190,7 @@ const HomeContent = () => {
         } else {
             toast.error("Please enter a valid message.");
         }
-    }, [input, messages, editingMessageIndex, setMessages, reload]);
+    }, [input, messages, editingMessageIndex, setMessages, reload, setInput]);
 
     const AboutButton = () => {
         return (
@@ -1972,8 +1967,7 @@ const ToolInvocationListView = memo(
                             color="violet"
                         />;
                     }
-
-                    return <TMDBResult result={result} />;
+                    return null;
                 }
 
                 if (toolInvocation.toolName === 'trending_movies') {
@@ -1984,7 +1978,7 @@ const ToolInvocationListView = memo(
                             color="blue"
                         />;
                     }
-                    return <TrendingResults result={result} type="movie" />;
+                    return null;
                 }
 
                 if (toolInvocation.toolName === 'trending_tv') {
@@ -1995,7 +1989,7 @@ const ToolInvocationListView = memo(
                             color="blue"
                         />;
                     }
-                    return <TrendingResults result={result} type="tv" />;
+                    return null;
                 }
 
 
@@ -2295,17 +2289,11 @@ const ToolInvocationListView = memo(
                         );
                     }
 
-                    console.log(result);
+                    return null;
+                }
 
-                    return (
-                        <div className="my-4">
-                            <NearbySearchMapView
-                                center={result.center}
-                                places={result.results}
-                                type={args.type}
-                            />
-                        </div>
-                    );
+                if (toolInvocation.toolName === 'currency_converter') {
+                    return null;
                 }
 
                 if (toolInvocation.toolName === 'text_search') {
@@ -2378,10 +2366,6 @@ const ToolInvocationListView = memo(
                         );
                     }
                     return <WeatherChart result={result} />;
-                }
-
-                if (toolInvocation.toolName === 'currency_converter') {
-                    return <CurrencyConverter toolInvocation={toolInvocation} result={result} />;
                 }
 
                 if (toolInvocation.toolName === 'stock_chart') {
@@ -2579,11 +2563,7 @@ const ToolInvocationListView = memo(
                         );
                     }
 
-                    return (
-                        <div className="my-4">
-                            <FlightTracker data={result} />
-                        </div>
-                    );
+                    return null;
                 }
 
                 return null;
