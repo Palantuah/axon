@@ -7,6 +7,7 @@ import { xai } from '@ai-sdk/xai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
+
 export async function suggestQuestions(history: any[]) {
   'use server';
 
@@ -106,17 +107,13 @@ export async function fetchMetadata(url: string) {
 
 const groupTools = {
   web: [
-    'web_search', 'get_weather_data',
+    'web_search', 
+    // 'get_weather_data',
     'retrieve',
-    'nearby_search', 'track_flight',
-    'movie_or_tv_search', 'trending_movies', 
-    'trending_tv',
     'reason_search'
   ] as const,
-  academic: ['academic_search', 'code_interpreter'] as const,
-  youtube: ['youtube_search'] as const,
+  academic: ['academic_search'] as const,
   x: ['x_search'] as const,
-  analysis: ['code_interpreter', 'stock_chart', 'currency_converter'] as const,
   fun: [] as const,
   extreme: ['reason_search'] as const,
 } as const;

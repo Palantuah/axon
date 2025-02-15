@@ -6,7 +6,7 @@ import { ChatRequestOptions, CreateMessage, Message } from 'ai';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from './hover-card';
 import useWindowSize from '@/hooks/use-window-size';
 import { X } from 'lucide-react';
 import {
@@ -14,11 +14,11 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 import { cn, SearchGroup, SearchGroupId, searchGroups } from '@/lib/utils';
 import { TextMorph } from '@/components/core/text-morph';
 import { Upload } from 'lucide-react';
-import { Mountain } from "lucide-react"
+import { Mountain } from 'lucide-react';
 
 interface ModelSwitcherProps {
     selectedModel: string;
@@ -29,45 +29,69 @@ interface ModelSwitcherProps {
     messages: Array<Message>;
 }
 
-const XAIIcon = ({ className }: { className?: string }) => (
-    <svg 
-        width="440" 
-        height="483" 
-        viewBox="0 0 440 483" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-    >
-        <path d="M356.09 155.99L364.4 482.36H430.96L439.28 37.18L356.09 155.99Z" fill="currentColor"/>
-        <path d="M439.28 0.910004H337.72L178.35 228.53L229.13 301.05L439.28 0.910004Z" fill="currentColor"/>
-        <path d="M0.609985 482.36H102.17L152.96 409.84L102.17 337.31L0.609985 482.36Z" fill="currentColor"/>
-        <path d="M0.609985 155.99L229.13 482.36H330.69L102.17 155.99H0.609985Z" fill="currentColor"/>
+const OpenAIIcon = ({ className }: { className?: string }) => (
+    <svg fill="#000000" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" className={className}>
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="SVGRepo_iconCarrier">
+            <title>OpenAI icon</title>
+            <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"></path>
+        </g>
     </svg>
 );
 
 const AnthropicIcon = ({ className }: { className?: string }) => (
-    <svg 
-        role="img" 
-        viewBox="0 0 24 24" 
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-    >
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className={className}>
         <title>Anthropic</title>
-        <path fill="currentColor" d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z"/>
+        <path
+            fill="currentColor"
+            d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z"
+        />
     </svg>
 );
 
 const models = [
-    { value: "scira-default", label: "Grok 2.0", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 model", color: "glossyblack", vision: false, experimental: false, category: "Stable" },
-    { value: "scira-grok-vision", label: "Grok 2.0 Vision", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 Vision model", color: "steel", vision: true, experimental: false, category: "Stable" },
-    { value: "scira-sonnet", label: "Claude 3.5 Sonnet", icon: AnthropicIcon, iconClass: "!text-neutral-900 dark:!text-white", description: "Anthropic's G.O.A.T. model", color: "purple", vision: true, experimental: false, category: "Stable" },
-    { value: "scira-llama", label: "Llama 3.3 70B", icon: "/cerebras.png", iconClass: "!text-neutral-900 dark:!text-white", description: "Meta's Llama model by Cerebras", color: "offgray", vision: false, experimental: true, category: "Experimental" },
-    { value: "scira-r1", label: "DeepSeek R1 Distilled", icon: "/groq.svg", iconClass: "!text-neutral-900 dark:!text-white", description: "DeepSeek R1 model by Groq", color: "sapphire", vision: false, experimental: true, category: "Experimental" },
+    // { value: "scira-default", label: "Grok 2.0", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 model", color: "glossyblack", vision: false, experimental: false, category: "Stable" },
+    // { value: "scira-grok-vision", label: "Grok 2.0 Vision", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 Vision model", color: "steel", vision: true, experimental: false, category: "Stable" },
+    {
+        value: 'scira-4o',
+        label: 'OpenAI 4o',
+        icon: OpenAIIcon,
+        iconClass: '!text-neutral-300',
+        description: "OpenAI's 4o model",
+        color: 'glossyblack',
+        vision: false,
+        experimental: false,
+        category: 'Stable',
+    },
+    {
+        value: 'scira-sonnet',
+        label: 'Claude 3.5 Sonnet',
+        icon: AnthropicIcon,
+        iconClass: '!text-neutral-900 dark:!text-white',
+        description: "Anthropic's G.O.A.T. model",
+        color: 'purple',
+        vision: true,
+        experimental: false,
+        category: 'Stable',
+    },
+    // { value: "scira-llama", label: "Llama 3.3 70B", icon: "/cerebras.png", iconClass: "!text-neutral-900 dark:!text-white", description: "Meta's Llama model by Cerebras", color: "offgray", vision: false, experimental: true, category: "Experimental" },
+    {
+        value: 'scira-r1',
+        label: 'DeepSeek R1 Distilled',
+        icon: '/groq.svg',
+        iconClass: '!text-neutral-900 dark:!text-white',
+        description: 'DeepSeek R1 model by Groq',
+        color: 'sapphire',
+        vision: false,
+        experimental: true,
+        category: 'Experimental',
+    },
 ];
 
 const getColorClasses = (color: string, isSelected: boolean = false) => {
-    const baseClasses = "transition-colors duration-200";
-    const selectedClasses = isSelected ? "!bg-opacity-100 dark:!bg-opacity-100" : "";
+    const baseClasses = 'transition-colors duration-200';
+    const selectedClasses = isSelected ? '!bg-opacity-100 dark:!bg-opacity-100' : '';
 
     switch (color) {
         case 'glossyblack':
@@ -99,22 +123,29 @@ const getColorClasses = (color: string, isSelected: boolean = false) => {
                 ? `${baseClasses} ${selectedClasses} !bg-neutral-500 dark:!bg-neutral-700 !text-white hover:!bg-neutral-600 dark:hover:!bg-neutral-800 !border-neutral-500 dark:!border-neutral-700`
                 : `${baseClasses} !text-neutral-600 dark:!text-neutral-300 hover:!bg-neutral-500 hover:!text-white dark:hover:!bg-neutral-700 dark:hover:!text-white`;
     }
-}
+};
 
 // Update the ModelSwitcher component's dropdown content
-const ModelSwitcher: React.FC<ModelSwitcherProps> = ({ selectedModel, setSelectedModel, className, showExperimentalModels, attachments, messages }) => {
-    const selectedModelData = models.find(model => model.value === selectedModel);
+const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
+    selectedModel,
+    setSelectedModel,
+    className,
+    showExperimentalModels,
+    attachments,
+    messages,
+}) => {
+    const selectedModelData = models.find((model) => model.value === selectedModel);
     const [isOpen, setIsOpen] = useState(false);
 
     // Check for attachments in current and previous messages
-    const hasAttachments = attachments.length > 0 || messages.some(msg => 
-        msg.experimental_attachments && msg.experimental_attachments.length > 0
-    );
+    const hasAttachments =
+        attachments.length > 0 ||
+        messages.some((msg) => msg.experimental_attachments && msg.experimental_attachments.length > 0);
 
     // Filter models based on attachments first, then experimental status
-    const filteredModels = hasAttachments 
-        ? models.filter(model => model.vision) 
-        : models.filter(model => showExperimentalModels ? true : !model.experimental);
+    const filteredModels = hasAttachments
+        ? models.filter((model) => model.vision)
+        : models.filter((model) => (showExperimentalModels ? true : !model.experimental));
 
     // Group filtered models by category
     const groupedModels = filteredModels.reduce((acc, model) => {
@@ -128,55 +159,46 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({ selectedModel, setSelecte
 
     // Only show divider if we have multiple categories and no attachments
     const showDivider = (category: string) => {
-        return !hasAttachments && showExperimentalModels && category === "Stable";
+        return !hasAttachments && showExperimentalModels && category === 'Stable';
     };
 
     return (
         <DropdownMenu onOpenChange={setIsOpen} modal={false}>
             <DropdownMenuTrigger
                 className={cn(
-                    "flex items-center gap-2 p-2 sm:px-3 h-8",
-                    "rounded-full transition-all duration-300",
-                    "border border-neutral-200 dark:border-neutral-800",
-                    "hover:shadow-md",
-                    getColorClasses(selectedModelData?.color || "neutral", true),
-                    className
+                    'flex items-center gap-2 p-2 sm:px-3 h-8',
+                    'rounded-full transition-all duration-300',
+                    'border border-neutral-200 dark:border-neutral-800',
+                    'hover:shadow-md',
+                    getColorClasses(selectedModelData?.color || 'neutral', true),
+                    className,
                 )}
             >
-                {selectedModelData && (
-                    typeof selectedModelData.icon === 'string' ? (
-                        <img 
-                            src={selectedModelData.icon} 
+                {selectedModelData &&
+                    (typeof selectedModelData.icon === 'string' ? (
+                        <img
+                            src={selectedModelData.icon}
                             alt={selectedModelData.label}
-                            className={cn(
-                                "w-3.5 h-3.5 object-contain",
-                                selectedModelData.iconClass
-                            )}
+                            className={cn('w-3.5 h-3.5 object-contain', selectedModelData.iconClass)}
                         />
                     ) : (
-                        <selectedModelData.icon 
-                            className={cn(
-                                "w-3.5 h-3.5",
-                                selectedModelData.iconClass
-                            )}
-                        />
-                    )
-                )}
+                        <selectedModelData.icon className={cn('w-3.5 h-3.5', selectedModelData.iconClass)} />
+                    ))}
                 <span className="hidden sm:block text-xs font-medium overflow-hidden">
                     <TextMorph
                         variants={{
                             initial: { opacity: 0, y: 10 },
                             animate: { opacity: 1, y: 0 },
-                            exit: { opacity: 0, y: -10 }
+                            exit: { opacity: 0, y: -10 },
                         }}
                         transition={{
-                            type: "spring",
+                            type: 'spring',
                             stiffness: 500,
                             damping: 30,
-                            mass: 0.5
+                            mass: 0.5,
                         }}
                     >
-                        {selectedModelData?.label || ""}
+                        {selectedModelData?.label || ''}
                     </TextMorph>
                 </span>
             </DropdownMenuTrigger>
@@ -186,9 +208,7 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({ selectedModel, setSelecte
                 sideOffset={8}
             >
                 {Object.entries(groupedModels).map(([category, categoryModels], categoryIndex) => (
-                    <div key={category} className={cn(
-                        categoryIndex > 0 && "mt-1"
-                    )}>
+                    <div key={category} className={cn(categoryIndex > 0 && 'mt-1')}>
                         <div className="px-2 py-1.5 text-[11px] font-medium text-neutral-500 dark:text-neutral-400 select-none">
                             {category}
                         </div>
@@ -197,44 +217,40 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({ selectedModel, setSelecte
                                 <DropdownMenuItem
                                     key={model.value}
                                     onSelect={() => {
-                                        console.log("Selected model:", model.value);
+                                        console.log('Selected model:', model.value);
                                         setSelectedModel(model.value.trim());
                                     }}
                                     className={cn(
-                                        "flex items-center gap-2 px-2 py-1.5 rounded-md text-xs",
-                                        "transition-all duration-200",
-                                        "hover:shadow-sm",
-                                        getColorClasses(model.color, selectedModel === model.value)
+                                        'flex items-center gap-2 px-2 py-1.5 rounded-md text-xs',
+                                        'transition-all duration-200',
+                                        'hover:shadow-sm',
+                                        getColorClasses(model.color, selectedModel === model.value),
                                     )}
                                 >
-                                    <div className={cn(
-                                        "p-1.5 rounded-md",
-                                        selectedModel === model.value
-                                            ? "bg-black/10 dark:bg-white/10"
-                                            : "bg-black/5 dark:bg-white/5",
-                                        "group-hover:bg-black/10 dark:group-hover:bg-white/10"
-                                    )}>
+                                    <div
+                                        className={cn(
+                                            'p-1.5 rounded-md',
+                                            selectedModel === model.value
+                                                ? 'bg-black/10 dark:bg-white/10'
+                                                : 'bg-black/5 dark:bg-white/5',
+                                            'group-hover:bg-black/10 dark:group-hover:bg-white/10',
+                                        )}
+                                    >
                                         {typeof model.icon === 'string' ? (
-                                            <img 
+                                            <img
                                                 src={model.icon}
                                                 alt={model.label}
-                                                className={cn(
-                                                    "w-3 h-3 object-contain",
-                                                    model.iconClass
-                                                )}
+                                                className={cn('w-3 h-3 object-contain', model.iconClass)}
                                             />
                                         ) : (
-                                            <model.icon 
-                                                className={cn(
-                                                    "w-3 h-3",
-                                                    model.iconClass
-                                                )}
-                                            />
+                                            <model.icon className={cn('w-3 h-3', model.iconClass)} />
                                         )}
                                     </div>
                                     <div className="flex flex-col gap-px min-w-0">
                                         <div className="font-medium truncate">{model.label}</div>
-                                        <div className="text-[10px] opacity-80 truncate leading-tight">{model.description}</div>
+                                        <div className="text-[10px] opacity-80 truncate leading-tight">
+                                            {model.description}
+                                        </div>
                                     </div>
                                 </DropdownMenuItem>
                             ))}
@@ -258,13 +274,7 @@ interface Attachment {
 
 const ArrowUpIcon = ({ size = 16 }: { size?: number }) => {
     return (
-        <svg
-            height={size}
-            strokeLinejoin="round"
-            viewBox="0 0 16 16"
-            width={size}
-            style={{ color: "currentcolor" }}
-        >
+        <svg height={size} strokeLinejoin="round" viewBox="0 0 16 16" width={size} style={{ color: 'currentcolor' }}>
             <path
                 fillRule="evenodd"
                 clipRule="evenodd"
@@ -277,18 +287,8 @@ const ArrowUpIcon = ({ size = 16 }: { size?: number }) => {
 
 const StopIcon = ({ size = 16 }: { size?: number }) => {
     return (
-        <svg
-            height={size}
-            viewBox="0 0 16 16"
-            width={size}
-            style={{ color: "currentcolor" }}
-        >
-            <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M3 3H13V13H3V3Z"
-                fill="currentColor"
-            ></path>
+        <svg height={size} viewBox="0 0 16 16" width={size} style={{ color: 'currentcolor' }}>
+            <path fillRule="evenodd" clipRule="evenodd" d="M3 3H13V13H3V3Z" fill="currentColor"></path>
         </svg>
     );
 };
@@ -300,7 +300,7 @@ const PaperclipIcon = ({ size = 16 }: { size?: number }) => {
             strokeLinejoin="round"
             viewBox="0 0 16 16"
             width={size}
-            style={{ color: "currentcolor" }}
+            style={{ color: 'currentcolor' }}
             className="-rotate-45"
         >
             <path
@@ -313,12 +313,11 @@ const PaperclipIcon = ({ size = 16 }: { size?: number }) => {
     );
 };
 
-
 const MAX_IMAGES = 4;
 
 const hasVisionSupport = (modelValue: string): boolean => {
-    const selectedModel = models.find(model => model.value === modelValue);
-    return selectedModel?.vision === true
+    const selectedModel = models.find((model) => model.value === modelValue);
+    return selectedModel?.vision === true;
 };
 
 const truncateFilename = (filename: string, maxLength: number = 20) => {
@@ -328,7 +327,11 @@ const truncateFilename = (filename: string, maxLength: number = 20) => {
     return `${name}...${extension}`;
 };
 
-const AttachmentPreview: React.FC<{ attachment: Attachment | UploadingAttachment, onRemove: () => void, isUploading: boolean }> = ({ attachment, onRemove, isUploading }) => {
+const AttachmentPreview: React.FC<{
+    attachment: Attachment | UploadingAttachment;
+    onRemove: () => void;
+    isUploading: boolean;
+}> = ({ attachment, onRemove, isUploading }) => {
     const formatFileSize = (bytes: number): string => {
         if (bytes < 1024) return bytes + ' bytes';
         else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
@@ -350,9 +353,25 @@ const AttachmentPreview: React.FC<{ attachment: Attachment | UploadingAttachment
         >
             {isUploading ? (
                 <div className="w-10 h-10 flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 text-neutral-500 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                        className="animate-spin h-5 w-5 text-neutral-500 dark:text-neutral-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                        ></circle>
+                        <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                     </svg>
                 </div>
             ) : isUploadingAttachment(attachment) ? (
@@ -380,7 +399,9 @@ const AttachmentPreview: React.FC<{ attachment: Attachment | UploadingAttachment
                             ></circle>
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">{Math.round(attachment.progress * 100)}%</span>
+                            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                                {Math.round(attachment.progress * 100)}%
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -408,7 +429,10 @@ const AttachmentPreview: React.FC<{ attachment: Attachment | UploadingAttachment
             <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={(e) => { e.stopPropagation(); onRemove(); }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove();
+                }}
                 className="absolute -top-2 -right-2 p-0.5 m-0 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors z-20"
             >
                 <X className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
@@ -470,13 +494,13 @@ const ToolbarButton = ({ group, isSelected, onClick }: ToolbarButtonProps) => {
     const isMobile = width ? width < 768 : false;
 
     const commonClassNames = cn(
-        "relative flex items-center justify-center",
-        "size-8",
-        "rounded-full",
-        "transition-colors duration-300",
+        'relative flex items-center justify-center',
+        'size-8',
+        'rounded-full',
+        'transition-colors duration-300',
         isSelected
-            ? "bg-neutral-500 dark:bg-neutral-600 text-white dark:text-neutral-300"
-            : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/80"
+            ? 'bg-neutral-500 dark:bg-neutral-600 text-white dark:text-neutral-300'
+            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/80',
     );
 
     const handleClick = (e: React.MouseEvent) => {
@@ -512,28 +536,22 @@ const ToolbarButton = ({ group, isSelected, onClick }: ToolbarButtonProps) => {
 
     return (
         <HoverCard openDelay={100} closeDelay={50}>
-            <HoverCardTrigger asChild>
-                {button}
-            </HoverCardTrigger>
+            <HoverCardTrigger asChild>{button}</HoverCardTrigger>
             <HoverCardContent
                 side="bottom"
                 align="center"
                 sideOffset={6}
                 className={cn(
-                    "z-[100]",
-                    "w-44 p-2 rounded-lg",
-                    "border border-neutral-200 dark:border-neutral-700",
-                    "bg-white dark:bg-neutral-800 shadow-md",
-                    "transition-opacity duration-300"
+                    'z-[100]',
+                    'w-44 p-2 rounded-lg',
+                    'border border-neutral-200 dark:border-neutral-700',
+                    'bg-white dark:bg-neutral-800 shadow-md',
+                    'transition-opacity duration-300',
                 )}
             >
                 <div className="space-y-0.5">
-                    <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                        {group.name}
-                    </h4>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-normal">
-                        {group.description}
-                    </p>
+                    <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{group.name}</h4>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-normal">{group.description}</p>
                 </div>
             </HoverCardContent>
         </HoverCard>
@@ -548,27 +566,27 @@ const SelectionContent = ({ ...props }) => {
             layout={false}
             initial={false}
             animate={{
-                width: isExpanded ? "auto" : "30px",
-                gap: isExpanded ? "0.5rem" : 0,
-                paddingRight: isExpanded ? "0.5rem" : 0,
+                width: isExpanded ? 'auto' : '30px',
+                gap: isExpanded ? '0.5rem' : 0,
+                paddingRight: isExpanded ? '0.5rem' : 0,
             }}
             transition={{
                 duration: 0.2,
-                ease: "easeInOut",
+                ease: 'easeInOut',
             }}
             style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start"
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
             }}
             className={cn(
-                "inline-flex items-center",
-                "min-w-[38px]",
-                "p-0.5",
-                "rounded-full border border-neutral-200 dark:border-neutral-800",
-                "bg-white dark:bg-neutral-900",
-                "shadow-sm overflow-visible",
-                "relative z-10"
+                'inline-flex items-center',
+                'min-w-[38px]',
+                'p-0.5',
+                'rounded-full border border-neutral-200 dark:border-neutral-800',
+                'bg-white dark:bg-neutral-900',
+                'shadow-sm overflow-visible',
+                'relative z-10',
             )}
             onMouseEnter={() => setIsExpanded(true)}
             onMouseLeave={() => setIsExpanded(false)}
@@ -581,12 +599,12 @@ const SelectionContent = ({ ...props }) => {
                             key={group.id}
                             layout={false}
                             animate={{
-                                width: showItem ? "28px" : 0,
-                                opacity: showItem ? 1 : 0
+                                width: showItem ? '28px' : 0,
+                                opacity: showItem ? 1 : 0,
                             }}
                             transition={{
                                 duration: 0.15,
-                                ease: "easeInOut"
+                                ease: 'easeInOut',
                             }}
                             style={{ margin: 0 }}
                         >
@@ -604,12 +622,7 @@ const SelectionContent = ({ ...props }) => {
 };
 
 const GroupSelector = ({ selectedGroup, onGroupSelect }: GroupSelectorProps) => {
-    return (
-        <SelectionContent
-            selectedGroup={selectedGroup}
-            onGroupSelect={onGroupSelect}
-        />
-    );
+    return <SelectionContent selectedGroup={selectedGroup} onGroupSelect={onGroupSelect} />;
 };
 
 const FormComponent: React.FC<FormComponentProps> = ({
@@ -669,11 +682,14 @@ const FormComponent: React.FC<FormComponentProps> = ({
         setIsFocused(false);
     };
 
-    const handleGroupSelect = useCallback((group: SearchGroup) => {
-        setSelectedGroup(group.id);
-        resetSuggestedQuestions();
-        inputRef.current?.focus();
-    }, [setSelectedGroup, resetSuggestedQuestions, inputRef]);
+    const handleGroupSelect = useCallback(
+        (group: SearchGroup) => {
+            setSelectedGroup(group.id);
+            resetSuggestedQuestions();
+            inputRef.current?.focus();
+        },
+        [setSelectedGroup, resetSuggestedQuestions, inputRef],
+    );
 
     const uploadFile = async (file: File): Promise<Attachment> => {
         const formData = new FormData();
@@ -692,52 +708,55 @@ const FormComponent: React.FC<FormComponentProps> = ({
                 throw new Error('Failed to upload file');
             }
         } catch (error) {
-            console.error("Error uploading file:", error);
-            toast.error("Failed to upload file, please try again!");
+            console.error('Error uploading file:', error);
+            toast.error('Failed to upload file, please try again!');
             throw error;
         }
     };
 
-    const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(event.target.files || []);
-        const totalAttachments = attachments.length + files.length;
+    const handleFileChange = useCallback(
+        async (event: React.ChangeEvent<HTMLInputElement>) => {
+            const files = Array.from(event.target.files || []);
+            const totalAttachments = attachments.length + files.length;
 
-        if (totalAttachments > MAX_IMAGES) {
-            toast.error(`You can only attach up to ${MAX_IMAGES} images.`);
-            return;
-        }
+            if (totalAttachments > MAX_IMAGES) {
+                toast.error(`You can only attach up to ${MAX_IMAGES} images.`);
+                return;
+            }
 
-        setUploadQueue(files.map((file) => file.name));
+            setUploadQueue(files.map((file) => file.name));
 
-        try {
-            const uploadPromises = files.map((file) => uploadFile(file));
-            const uploadedAttachments = await Promise.all(uploadPromises);
-            setAttachments((currentAttachments) => [
-                ...currentAttachments,
-                ...uploadedAttachments,
-            ]);
-        } catch (error) {
-            console.error("Error uploading files!", error);
-            toast.error("Failed to upload one or more files. Please try again.");
-        } finally {
-            setUploadQueue([]);
-            event.target.value = '';
-        }
-    }, [attachments, setAttachments]);
+            try {
+                const uploadPromises = files.map((file) => uploadFile(file));
+                const uploadedAttachments = await Promise.all(uploadPromises);
+                setAttachments((currentAttachments) => [...currentAttachments, ...uploadedAttachments]);
+            } catch (error) {
+                console.error('Error uploading files!', error);
+                toast.error('Failed to upload one or more files. Please try again.');
+            } finally {
+                setUploadQueue([]);
+                event.target.value = '';
+            }
+        },
+        [attachments, setAttachments],
+    );
 
     const removeAttachment = (index: number) => {
-        setAttachments(prev => prev.filter((_, i) => i !== index));
+        setAttachments((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (attachments.length >= MAX_IMAGES) return;
-        
-        if (e.dataTransfer.items && e.dataTransfer.items[0].kind === "file") {
-            setIsDragging(true);
-        }
-    }, [attachments.length]);
+    const handleDragOver = useCallback(
+        (e: React.DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (attachments.length >= MAX_IMAGES) return;
+
+            if (e.dataTransfer.items && e.dataTransfer.items[0].kind === 'file') {
+                setIsDragging(true);
+            }
+        },
+        [attachments.length],
+    );
 
     const handleDragLeave = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -746,104 +765,102 @@ const FormComponent: React.FC<FormComponentProps> = ({
     }, []);
 
     const getFirstVisionModel = useCallback(() => {
-        return models.find(model => model.vision)?.value || selectedModel;
+        return models.find((model) => model.vision)?.value || selectedModel;
     }, [selectedModel]);
 
-    const handleDrop = useCallback(async (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
+    const handleDrop = useCallback(
+        async (e: React.DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsDragging(false);
 
-        const files = Array.from(e.dataTransfer.files).filter(file => 
-            file.type.startsWith('image/')
-        );
+            const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith('image/'));
 
-        if (files.length === 0) {
-            toast.error("Only image files are supported");
-            return;
-        }
+            if (files.length === 0) {
+                toast.error('Only image files are supported');
+                return;
+            }
 
-        const totalAttachments = attachments.length + files.length;
-        if (totalAttachments > MAX_IMAGES) {
-            toast.error(`You can only attach up to ${MAX_IMAGES} images.`);
-            return;
-        }
+            const totalAttachments = attachments.length + files.length;
+            if (totalAttachments > MAX_IMAGES) {
+                toast.error(`You can only attach up to ${MAX_IMAGES} images.`);
+                return;
+            }
 
-        // Switch to vision model if current model doesn't support vision
-        const currentModel = models.find(m => m.value === selectedModel);
-        if (!currentModel?.vision) {
-            const visionModel = getFirstVisionModel();
-            setSelectedModel(visionModel);
-            toast.success(`Switched to ${models.find(m => m.value === visionModel)?.label} for image support`);
-        }
+            // Switch to vision model if current model doesn't support vision
+            const currentModel = models.find((m) => m.value === selectedModel);
+            if (!currentModel?.vision) {
+                const visionModel = getFirstVisionModel();
+                setSelectedModel(visionModel);
+                toast.success(`Switched to ${models.find((m) => m.value === visionModel)?.label} for image support`);
+            }
 
-        setUploadQueue(files.map((file) => file.name));
+            setUploadQueue(files.map((file) => file.name));
 
-        try {
-            const uploadPromises = files.map((file) => uploadFile(file));
-            const uploadedAttachments = await Promise.all(uploadPromises);
-            setAttachments((currentAttachments) => [
-                ...currentAttachments,
-                ...uploadedAttachments,
-            ]);
-        } catch (error) {
-            console.error("Error uploading files!", error);
-            toast.error("Failed to upload one or more files. Please try again.");
-        } finally {
-            setUploadQueue([]);
-        }
-    }, [attachments.length, setAttachments, uploadFile, selectedModel, setSelectedModel, getFirstVisionModel]);
+            try {
+                const uploadPromises = files.map((file) => uploadFile(file));
+                const uploadedAttachments = await Promise.all(uploadPromises);
+                setAttachments((currentAttachments) => [...currentAttachments, ...uploadedAttachments]);
+            } catch (error) {
+                console.error('Error uploading files!', error);
+                toast.error('Failed to upload one or more files. Please try again.');
+            } finally {
+                setUploadQueue([]);
+            }
+        },
+        [attachments.length, setAttachments, uploadFile, selectedModel, setSelectedModel, getFirstVisionModel],
+    );
 
-    const handlePaste = useCallback(async (e: React.ClipboardEvent) => {
-        const items = Array.from(e.clipboardData.items);
-        const imageItems = items.filter(item => item.type.startsWith('image/'));
-        
-        if (imageItems.length === 0) return;
-        
-        // Prevent default paste behavior if there are images
-        e.preventDefault();
-        
-        const totalAttachments = attachments.length + imageItems.length;
-        if (totalAttachments > MAX_IMAGES) {
-            toast.error(`You can only attach up to ${MAX_IMAGES} images.`);
-            return;
-        }
+    const handlePaste = useCallback(
+        async (e: React.ClipboardEvent) => {
+            const items = Array.from(e.clipboardData.items);
+            const imageItems = items.filter((item) => item.type.startsWith('image/'));
 
-        // Switch to vision model if needed
-        const currentModel = models.find(m => m.value === selectedModel);
-        if (!currentModel?.vision) {
-            const visionModel = getFirstVisionModel();
-            setSelectedModel(visionModel);
-            toast.success(`Switched to ${models.find(m => m.value === visionModel)?.label} for image support`);
-        }
+            if (imageItems.length === 0) return;
 
-        setUploadQueue(imageItems.map((_, i) => `Pasted Image ${i + 1}`));
+            // Prevent default paste behavior if there are images
+            e.preventDefault();
 
-        try {
-            const files = imageItems.map(item => item.getAsFile()).filter(Boolean) as File[];
-            const uploadPromises = files.map(file => uploadFile(file));
-            const uploadedAttachments = await Promise.all(uploadPromises);
-            
-            setAttachments(currentAttachments => [
-                ...currentAttachments,
-                ...uploadedAttachments,
-            ]);
-            
-            toast.success('Image pasted successfully');
-        } catch (error) {
-            console.error("Error uploading pasted files!", error);
-            toast.error("Failed to upload pasted image. Please try again.");
-        } finally {
-            setUploadQueue([]);
-        }
-    }, [attachments.length, setAttachments, uploadFile, selectedModel, setSelectedModel, getFirstVisionModel]);
+            const totalAttachments = attachments.length + imageItems.length;
+            if (totalAttachments > MAX_IMAGES) {
+                toast.error(`You can only attach up to ${MAX_IMAGES} images.`);
+                return;
+            }
+
+            // Switch to vision model if needed
+            const currentModel = models.find((m) => m.value === selectedModel);
+            if (!currentModel?.vision) {
+                const visionModel = getFirstVisionModel();
+                setSelectedModel(visionModel);
+                toast.success(`Switched to ${models.find((m) => m.value === visionModel)?.label} for image support`);
+            }
+
+            setUploadQueue(imageItems.map((_, i) => `Pasted Image ${i + 1}`));
+
+            try {
+                const files = imageItems.map((item) => item.getAsFile()).filter(Boolean) as File[];
+                const uploadPromises = files.map((file) => uploadFile(file));
+                const uploadedAttachments = await Promise.all(uploadPromises);
+
+                setAttachments((currentAttachments) => [...currentAttachments, ...uploadedAttachments]);
+
+                toast.success('Image pasted successfully');
+            } catch (error) {
+                console.error('Error uploading pasted files!', error);
+                toast.error('Failed to upload pasted image. Please try again.');
+            } finally {
+                setUploadQueue([]);
+            }
+        },
+        [attachments.length, setAttachments, uploadFile, selectedModel, setSelectedModel, getFirstVisionModel],
+    );
 
     useEffect(() => {
         if (!isLoading && hasSubmitted && inputRef.current) {
             const focusTimeout = setTimeout(() => {
                 if (isMounted.current && inputRef.current) {
                     inputRef.current.focus({
-                        preventScroll: true
+                        preventScroll: true,
                     });
                 }
             }, 300);
@@ -853,29 +870,32 @@ const FormComponent: React.FC<FormComponentProps> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading, hasSubmitted]);
 
-    const onSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        event.stopPropagation();
+    const onSubmit = useCallback(
+        (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            event.stopPropagation();
 
-        if (input.trim() || attachments.length > 0) {
-            setHasSubmitted(true);
-            lastSubmittedQueryRef.current = input.trim();
+            if (input.trim() || attachments.length > 0) {
+                setHasSubmitted(true);
+                lastSubmittedQueryRef.current = input.trim();
 
-            handleSubmit(event, {
-                experimental_attachments: attachments,
-            });
+                handleSubmit(event, {
+                    experimental_attachments: attachments,
+                });
 
-            setAttachments([]);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
+                setAttachments([]);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+            } else {
+                toast.error('Please enter a search query or attach an image.');
             }
-        } else {
-            toast.error("Please enter a search query or attach an image.");
-        }
-    }, [input, attachments, setHasSubmitted, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef]);
+        },
+        [input, attachments, setHasSubmitted, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef],
+    );
 
     const submitForm = useCallback(() => {
-        onSubmit({ preventDefault: () => { }, stopPropagation: () => { } } as React.FormEvent<HTMLFormElement>);
+        onSubmit({ preventDefault: () => {}, stopPropagation: () => {} } as React.FormEvent<HTMLFormElement>);
         resetSuggestedQuestions();
 
         if (width && width > 768) {
@@ -897,10 +917,10 @@ const FormComponent: React.FC<FormComponentProps> = ({
     }, [attachments.length, hasSubmitted, fileInputRef]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (event.key === "Enter" && !event.shiftKey) {
+        if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             if (isLoading) {
-                toast.error("Please wait for the response to complete!");
+                toast.error('Please wait for the response to complete!');
             } else {
                 submitForm();
                 if (width && width > 768) {
@@ -913,14 +933,14 @@ const FormComponent: React.FC<FormComponentProps> = ({
     };
 
     return (
-        <div 
+        <div
             className={cn(
-                "relative w-full flex flex-col gap-2 rounded-lg transition-all duration-300 !font-sans",
-                hasSubmitted ?? "z-[51]",
-                isDragging && "ring-1 ring-neutral-300 dark:ring-neutral-700",
+                'relative w-full flex flex-col gap-2 rounded-lg transition-all duration-300 !font-sans',
+                hasSubmitted ?? 'z-[51]',
+                isDragging && 'ring-1 ring-neutral-300 dark:ring-neutral-700',
                 attachments.length > 0 || uploadQueue.length > 0
-                    ? "bg-gray-100/70 dark:bg-neutral-800 p-1"
-                    : "bg-transparent"
+                    ? 'bg-gray-100/70 dark:bg-neutral-800 p-1'
+                    : 'bg-transparent',
             )}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -928,7 +948,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
         >
             <AnimatePresence>
                 {isDragging && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -951,8 +971,24 @@ const FormComponent: React.FC<FormComponentProps> = ({
                 )}
             </AnimatePresence>
 
-            <input type="file" className="hidden" ref={fileInputRef} multiple onChange={handleFileChange} accept="image/*" tabIndex={-1} />
-            <input type="file" className="hidden" ref={postSubmitFileInputRef} multiple onChange={handleFileChange} accept="image/*" tabIndex={-1} />
+            <input
+                type="file"
+                className="hidden"
+                ref={fileInputRef}
+                multiple
+                onChange={handleFileChange}
+                accept="image/*"
+                tabIndex={-1}
+            />
+            <input
+                type="file"
+                className="hidden"
+                ref={postSubmitFileInputRef}
+                multiple
+                onChange={handleFileChange}
+                accept="image/*"
+                tabIndex={-1}
+            />
 
             {(attachments.length > 0 || uploadQueue.length > 0) && (
                 <div className="flex flex-row gap-2 overflow-x-auto py-2 max-h-32 z-10 px-1">
@@ -968,13 +1004,15 @@ const FormComponent: React.FC<FormComponentProps> = ({
                     {uploadQueue.map((filename) => (
                         <AttachmentPreview
                             key={filename}
-                            attachment={{
-                                url: "",
-                                name: filename,
-                                contentType: "",
-                                size: 0,
-                            } as Attachment}
-                            onRemove={() => { }}
+                            attachment={
+                                {
+                                    url: '',
+                                    name: filename,
+                                    contentType: '',
+                                    size: 0,
+                                } as Attachment
+                            }
+                            onRemove={() => {}}
                             isUploading={true}
                         />
                     ))}
@@ -984,24 +1022,24 @@ const FormComponent: React.FC<FormComponentProps> = ({
             <div className="relative rounded-lg bg-neutral-100 dark:bg-neutral-900">
                 <Textarea
                     ref={inputRef}
-                    placeholder={hasSubmitted ? "Ask a new question..." : "Ask a question..."}
+                    placeholder={hasSubmitted ? 'Ask a new question...' : 'Ask a question...'}
                     value={input}
                     onChange={handleInput}
                     disabled={isLoading}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     className={cn(
-                        "min-h-[72px] w-full resize-none rounded-lg",
-                        "text-base leading-relaxed",
-                        "bg-neutral-100 dark:bg-neutral-900",
-                        "border !border-neutral-200 dark:!border-neutral-700",
-                        "focus:!border-neutral-300 dark:focus:!border-neutral-600",
-                        isFocused ? "!border-neutral-300 dark:!border-neutral-600" : "",
-                        "text-neutral-900 dark:text-neutral-100",
-                        "focus:!ring-1 focus:!ring-neutral-300 dark:focus:!ring-neutral-600",
-                        "px-4 pt-4 pb-16",
-                        "overflow-y-auto",
-                        "touch-manipulation",
+                        'min-h-[72px] w-full resize-none rounded-lg',
+                        'text-base leading-relaxed',
+                        'bg-neutral-100 dark:bg-neutral-900',
+                        'border !border-neutral-200 dark:!border-neutral-700',
+                        'focus:!border-neutral-300 dark:focus:!border-neutral-600',
+                        isFocused ? '!border-neutral-300 dark:!border-neutral-600' : '',
+                        'text-neutral-900 dark:text-neutral-100',
+                        'focus:!ring-1 focus:!ring-neutral-300 dark:focus:!ring-neutral-600',
+                        'px-4 pt-4 pb-16',
+                        'overflow-y-auto',
+                        'touch-manipulation',
                     )}
                     style={{
                         maxHeight: `${MAX_HEIGHT}px`,
@@ -1014,19 +1052,18 @@ const FormComponent: React.FC<FormComponentProps> = ({
                     onPaste={handlePaste}
                 />
 
-                <div className={cn(
-                    "absolute bottom-0 inset-x-0 flex justify-between items-center p-2 rounded-b-lg",
-                    "bg-neutral-100 dark:bg-neutral-900",
-                    "!border !border-t-0 !border-neutral-200 dark:!border-neutral-700",
-                    isFocused ? "!border-neutral-300 dark:!border-neutral-600" : "",
-                    isLoading ? "!opacity-20 !cursor-not-allowed" : ""
-                )}>
+                <div
+                    className={cn(
+                        'absolute bottom-0 inset-x-0 flex justify-between items-center p-2 rounded-b-lg',
+                        'bg-neutral-100 dark:bg-neutral-900',
+                        '!border !border-t-0 !border-neutral-200 dark:!border-neutral-700',
+                        isFocused ? '!border-neutral-300 dark:!border-neutral-600' : '',
+                        isLoading ? '!opacity-20 !cursor-not-allowed' : '',
+                    )}
+                >
                     <div className="flex items-center gap-2">
-                        {!hasSubmitted && selectedModel !== "scira-o3-mini" && selectedGroup !== 'extreme' ? (
-                            <GroupSelector
-                                selectedGroup={selectedGroup}
-                                onGroupSelect={handleGroupSelect}
-                            />
+                        {!hasSubmitted && selectedModel !== 'scira-o3-mini' && selectedGroup !== 'extreme' ? (
+                            <GroupSelector selectedGroup={selectedGroup} onGroupSelect={handleGroupSelect} />
                         ) : null}
                         <ModelSwitcher
                             selectedModel={selectedModel}
@@ -1046,14 +1083,16 @@ const FormComponent: React.FC<FormComponentProps> = ({
                                 }}
                                 disabled={hasSubmitted && selectedGroup === 'extreme'}
                                 className={cn(
-                                    "flex items-center gap-2 p-2 sm:px-3 h-8",
-                                    "rounded-full transition-all duration-300",
-                                    "border border-neutral-200 dark:border-neutral-800",
-                                    "hover:shadow-md",
-                                    selectedGroup === 'extreme' 
-                                        ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" 
-                                        : "bg-white dark:bg-neutral-900 text-neutral-500",
-                                    (hasSubmitted && selectedGroup === 'extreme') && "opacity-50 cursor-not-allowed hover:shadow-none"
+                                    'flex items-center gap-2 p-2 sm:px-3 h-8',
+                                    'rounded-full transition-all duration-300',
+                                    'border border-neutral-200 dark:border-neutral-800',
+                                    'hover:shadow-md',
+                                    selectedGroup === 'extreme'
+                                        ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900'
+                                        : 'bg-white dark:bg-neutral-900 text-neutral-500',
+                                    hasSubmitted &&
+                                        selectedGroup === 'extreme' &&
+                                        'opacity-50 cursor-not-allowed hover:shadow-none',
                                 )}
                             >
                                 <Mountain className="h-3.5 w-3.5" />
@@ -1096,7 +1135,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
                                     event.preventDefault();
                                     submitForm();
                                 }}
-                                disabled={input.length === 0 && attachments.length === 0 || uploadQueue.length > 0}
+                                disabled={(input.length === 0 && attachments.length === 0) || uploadQueue.length > 0}
                             >
                                 <ArrowUpIcon size={14} />
                             </Button>

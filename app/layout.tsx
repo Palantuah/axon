@@ -3,7 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import 'katex/dist/katex.min.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Metadata, Viewport } from "next";
-import { Instrument_Serif, Syne } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -53,9 +53,9 @@ export const viewport: Viewport = {
   ],
 }
 
-const syne = Syne({ 
+const syne = Inter({ 
   subsets: ['latin'], 
-  variable: '--font-syne',
+  variable: '--font-inter',
    preload: true,
   display: 'swap',
 });
