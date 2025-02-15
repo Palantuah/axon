@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { oauthSignIn } from '@/app/login/actions'; // Import the server action
+import { login, signup, oauthSignIn } from '@/app/login/actions'; // Import the server action
 
 interface AuthFormProps {
     className?: string;
@@ -36,7 +36,46 @@ export function MantraAuthForm({ className }: AuthFormProps) {
                 </CardHeader>
 
                 <CardContent className="space-y-6 p-0">
-                    <div className="flex flex-col space-y-3">
+                    <form className="max-w-md mx-auto p-6 rounded-2xl shadow-lg backdrop-blur-md border border-white/20">
+                        <div className="mb-4">
+                            <label htmlFor="email" className="block text-sm font-medium">
+                                Email
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                required
+                                className="mt-1 w-full p-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2"
+                                placeholder="Enter your email"
+                            />
+                        </div>
+
+                        <div className="mb-6">
+                            <label htmlFor="password" className="block text-sm font-medium">
+                                Password
+                            </label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                required
+                                className="mt-1 w-full p-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2"
+                                placeholder="Enter your password"
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3">
+                            <button formAction={login} className="w-full px-4 py-2 rounded-lg shadow-md">
+                                Log in
+                            </button>
+                            <button formAction={signup} className="w-full px-4 py-2 rounded-lg shadow-md">
+                                Sign up
+                            </button>
+                        </div>
+                    </form>
+
+                    {/* <div className="flex flex-col space-y-3">
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
@@ -44,7 +83,7 @@ export function MantraAuthForm({ className }: AuthFormProps) {
                         >
                             <span>Continue with Google</span>
                         </button>
-                    </div>
+                    </div> */}
                 </CardContent>
 
                 <CardFooter className="p-0">

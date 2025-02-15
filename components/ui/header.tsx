@@ -8,6 +8,9 @@ import { cn } from '@/lib/utils';
 import { Button } from './button';
 import { MenuIcon } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './sheet';
+import { createClient } from '@/utils/supabase/client';
+import { redirect } from 'next/navigation';
+import { signOut } from '@/app/login/actions';
 
 const navItems = [
     { href: '/features', label: 'Features' },
@@ -42,6 +45,27 @@ const menuItemVariants = {
 export function Header() {
     const [isScrolled, setIsScrolled] = React.useState(false);
     const { scrollY } = useScroll();
+
+    // Auth
+    const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+
+    React.useEffect(() => {
+        const checkAuth = async () => {
+            const supabase = createClient();
+            const {
+                data: { user },
+                error,
+            } = await supabase.auth.getUser();
+
+            if (user) {
+                setIsAuthenticated(true);
+            } else {
+                setIsAuthenticated(false);
+            }
+        };
+
+        checkAuth();
+    }, []);
 
     // Dynamic values based on scroll
     const blurValue = useTransform(scrollY, [0, 100], [0, 12]);
@@ -168,53 +192,85 @@ export function Header() {
 
                         {/* Action Buttons */}
                         <div className="flex items-center gap-4">
-                            <motion.div
-                                variants={menuItemVariants}
-                                initial="hidden"
-                                animate="visible"
-                                transition={{ delay: 0.3 }}
-                            >
-                                <Link href="/login" passHref>
-                                    <Button
-                                        variant="ghost"
-                                        className="hidden md:inline-flex text-white/70 hover:text-white hover:bg-white/[0.05] rounded-full
-                           relative group overflow-hidden"
-                                    >
-                                        <motion.span
-                                            className="relative z-10"
-                                            whileHover={{ scale: 1.05 }}
-                                            transition={{ duration: 0.2 }}
-                                        >
-                                            Sign In
-                                        </motion.span>
-                                        <motion.div
-                                            className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 
-                             group-hover:opacity-100 blur-sm transition-opacity duration-500"
-                                        />
-                                    </Button>
-                                </Link>
-                            </motion.div>
-
-                            <motion.div
-                                variants={menuItemVariants}
-                                initial="hidden"
-                                animate="visible"
-                                transition={{ delay: 0.4 }}
-                            >
-                                <Button className="hidden md:inline-flex relative group overflow-hidden rounded-full">
+                            {isAuthenticated === null ? null : isAuthenticated ? (
+                                <form>
                                     <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-violet-500 via-blue-500 to-emerald-500 opacity-90
-                             group-hover:opacity-100 transition-opacity duration-500"
-                                    />
-                                    <motion.span
-                                        className="relative z-10 text-white"
-                                        whileHover={{ scale: 1.05 }}
-                                        transition={{ duration: 0.2 }}
+                                        variants={menuItemVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        transition={{ delay: 0.3 }}
                                     >
-                                        Get Started
-                                    </motion.span>
-                                </Button>
-                            </motion.div>
+                                        <button
+                                            //variant="ghost"
+                                            className="hidden md:inline-flex text-white/70 hover:text-white hover:bg-white/[0.05] rounded-full
+                                                   relative group overflow-hidden"
+                                            formAction={signOut}
+                                        >
+                                            <motion.span
+                                                className="relative z-10"
+                                                whileHover={{ scale: 1.05 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                Sign Out
+                                            </motion.span>
+                                            <motion.div
+                                                className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 
+                                                     group-hover:opacity-100 blur-sm transition-opacity duration-500"
+                                            />
+                                        </button>
+                                    </motion.div>
+                                </form>
+                            ) : (
+                                <>
+                                    <motion.div
+                                        variants={menuItemVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        <Link href="/login" passHref>
+                                            <Button
+                                                variant="ghost"
+                                                className="hidden md:inline-flex text-white/70 hover:text-white hover:bg-white/[0.05] rounded-full
+                           relative group overflow-hidden"
+                                            >
+                                                <motion.span
+                                                    className="relative z-10"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    transition={{ duration: 0.2 }}
+                                                >
+                                                    Sign In
+                                                </motion.span>
+                                                <motion.div
+                                                    className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 
+                             group-hover:opacity-100 blur-sm transition-opacity duration-500"
+                                                />
+                                            </Button>
+                                        </Link>
+                                    </motion.div>
+
+                                    <motion.div
+                                        variants={menuItemVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        <Button className="hidden md:inline-flex relative group overflow-hidden rounded-full">
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-violet-500 via-blue-500 to-emerald-500 opacity-90
+                             group-hover:opacity-100 transition-opacity duration-500"
+                                            />
+                                            <motion.span
+                                                className="relative z-10 text-white"
+                                                whileHover={{ scale: 1.05 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                Get Started
+                                            </motion.span>
+                                        </Button>
+                                    </motion.div>
+                                </>
+                            )}
 
                             {/* Mobile Menu */}
                             <Sheet>
