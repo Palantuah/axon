@@ -200,8 +200,8 @@ export function Header() {
                                         animate="visible"
                                         transition={{ delay: 0.3 }}
                                     >
-                                        <button
-                                            //variant="ghost"
+                                        <Button
+                                            variant="ghost"
                                             className="hidden md:inline-flex text-white/70 hover:text-white hover:bg-white/[0.05] rounded-full
                                                    relative group overflow-hidden"
                                             formAction={signOut}
@@ -217,7 +217,7 @@ export function Header() {
                                                 className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 
                                                      group-hover:opacity-100 blur-sm transition-opacity duration-500"
                                             />
-                                        </button>
+                                        </Button>
                                     </motion.div>
                                 </form>
                             ) : (

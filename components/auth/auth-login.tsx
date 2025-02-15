@@ -31,7 +31,7 @@ export function MantraAuthForm({ className }: AuthFormProps) {
             <Card className="border-border/40 shadow-lg relative bg-white dark:bg-black p-4 md:p-8 h-fit flex flex-col gap-6">
                 <CardHeader className="space-y-2 text-center p-0">
                     <h1 className="text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-200">
-                        Welcome to Mantra
+                        Welcome to Axon
                     </h1>
                 </CardHeader>
 
