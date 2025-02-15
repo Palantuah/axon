@@ -80,6 +80,7 @@ export function MantraAuthForm({ className }: AuthFormProps) {
                             </button>
                         </div>
                     </form>
+                    ``{' '}
                     {/* 
                     <div className="flex flex-col space-y-3">
                         <button
