@@ -51,10 +51,10 @@ const AnthropicIcon = ({ className }: { className?: string }) => (
 );
 
 const models = [
-    // { value: "scira-default", label: "Grok 2.0", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 model", color: "glossyblack", vision: false, experimental: false, category: "Stable" },
-    // { value: "scira-grok-vision", label: "Grok 2.0 Vision", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 Vision model", color: "steel", vision: true, experimental: false, category: "Stable" },
+    // { value: "axon-default", label: "Grok 2.0", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 model", color: "glossyblack", vision: false, experimental: false, category: "Stable" },
+    // { value: "axon-grok-vision", label: "Grok 2.0 Vision", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 Vision model", color: "steel", vision: true, experimental: false, category: "Stable" },
     {
-        value: 'scira-4o',
+        value: 'axon-4o',
         label: 'OpenAI 4o',
         icon: OpenAIIcon,
         iconClass: '!text-neutral-300',
@@ -65,7 +65,7 @@ const models = [
         category: 'Stable',
     },
     {
-        value: 'scira-sonnet',
+        value: 'axon-sonnet',
         label: 'Claude 3.5 Sonnet',
         icon: AnthropicIcon,
         iconClass: '!text-neutral-900 dark:!text-white',
@@ -75,9 +75,9 @@ const models = [
         experimental: false,
         category: 'Stable',
     },
-    // { value: "scira-llama", label: "Llama 3.3 70B", icon: "/cerebras.png", iconClass: "!text-neutral-900 dark:!text-white", description: "Meta's Llama model by Cerebras", color: "offgray", vision: false, experimental: true, category: "Experimental" },
+    // { value: "axon-llama", label: "Llama 3.3 70B", icon: "/cerebras.png", iconClass: "!text-neutral-900 dark:!text-white", description: "Meta's Llama model by Cerebras", color: "offgray", vision: false, experimental: true, category: "Experimental" },
     {
-        value: 'scira-r1',
+        value: 'axon-r1',
         label: 'DeepSeek R1 Distilled',
         icon: '/groq.svg',
         iconClass: '!text-neutral-900 dark:!text-white',
@@ -1062,7 +1062,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
                     )}
                 >
                     <div className="flex items-center gap-2">
-                        {!hasSubmitted && selectedModel !== 'scira-o3-mini' && selectedGroup !== 'extreme' ? (
+                        {!hasSubmitted && selectedModel !== 'axon-o3-mini' && selectedGroup !== 'extreme' ? (
                             <GroupSelector selectedGroup={selectedGroup} onGroupSelect={handleGroupSelect} />
                         ) : null}
                         <ModelSwitcher

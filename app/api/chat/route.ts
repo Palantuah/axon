@@ -21,16 +21,16 @@ import {
 import Exa from 'exa-js';
 import { z } from 'zod';
 
-const scira = customProvider({
+const axon = customProvider({
     languageModels: {
-        'scira-default': xai('grok-2-1212'),
-        'scira-grok-vision': xai('grok-2-vision-1212'),
-        'scira-sonnet': anthropic('claude-3-5-sonnet-20241022'),
-        'scira-r1': wrapLanguageModel({
+        'axon-default': xai('grok-2-1212'),
+        'axon-grok-vision': xai('grok-2-vision-1212'),
+        'axon-sonnet': anthropic('claude-3-5-sonnet-20241022'),
+        'axon-r1': wrapLanguageModel({
             model: groq('deepseek-r1-distill-llama-70b'),
             middleware: extractReasoningMiddleware({ tagName: 'think' })
         }),
-        'scira-llama-groq': groq("llama-3.3-70b-versatile"),
+        'axon-llama-groq': groq("llama-3.3-70b-versatile"),
     }
 })
 
@@ -127,10 +127,10 @@ export async function POST(req: Request) {
     return createDataStreamResponse({
         execute: async (dataStream) => {
             const result = streamText({
-                model: scira.languageModel(model),
+                model: axon.languageModel(model),
                 maxSteps: 5,
                 providerOptions: {
-                    'scira': {
+                    'axon': {
                         reasoning_format: group === "fun" ? "raw" : "parsed",
                     }
                 },
