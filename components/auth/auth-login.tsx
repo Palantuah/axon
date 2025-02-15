@@ -66,18 +66,24 @@ export function MantraAuthForm({ className }: AuthFormProps) {
                         </div>
 
                         <div className="flex items-center justify-between gap-3">
-                            <button formAction={login} className="w-full px-4 py-2 rounded-lg shadow-md">
+                            <button
+                                formAction={login}
+                                className="w-full px-4 py-2 rounded-lg shadow-md bg-gray-200 hover:bg-gray-300 text-gray-700"
+                            >
                                 Log in
                             </button>
-                            <button formAction={signup} className="w-full px-4 py-2 rounded-lg shadow-md">
+                            <button
+                                formAction={signup}
+                                className="w-full px-4 py-2 rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 text-white"
+                            >
                                 Sign up
                             </button>
                         </div>
                     </form>
-
-                    {/* <div className="flex flex-col space-y-3">
+                    {/* 
+                    <div className="flex flex-col space-y-3">
                         <button
-                            onClick={handleGoogleSignIn}
+                            formAction={oauthSignIn}
                             disabled={isLoading}
                             className="relative flex items-center justify-center w-full h-11 px-4 space-x-2 rounded-md bg-gray-50 dark:bg-zinc-900 text-sm font-medium text-neutral-700 dark:text-neutral-300 shadow-input hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
                         >
