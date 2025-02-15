@@ -5,7 +5,7 @@ import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 import { Cover } from '@/components/ui/cover';
-// import { WaveAnimation } from '@/components/ui/wave-animation';
+import { GradientBackground } from '@/components/ui/gradient-background';
 
 const fadeUpVariants = {
     hidden: {
@@ -42,12 +42,10 @@ export const Hero = () => {
     const contentScale = useTransform(scrollY, [0, 400], [1, 0.95]);
 
     return (
-        <>
-            {/* <div className="fixed inset-0 size-full">
-                <WaveAnimation />
-            </div> */}
-
-            {/* Content with fade effect */}
+        <div className="relative z-0 flex flex-col items-center justify-center">
+            {/* Move GradientBackground to z-index 0 */}
+                <GradientBackground />
+            {/* Content with fade effect - increase z-index */}
             <motion.div
                 initial="hidden"
                 animate="visible"
@@ -55,8 +53,8 @@ export const Hero = () => {
                 style={{ opacity: contentOpacity, scale: contentScale }}
                 className="min-h-[95vh] flex flex-col items-center justify-center px-4 relative z-10"
             >
-                {/* Main content */}
-                <div className="max-w-5xl mx-auto text-center space-y-10 relative z-10">
+                {/* Main content - remove redundant z-10 since parent already has it */}
+                <div className="max-w-5xl mx-auto text-center space-y-10 relative">
                     <motion.div variants={fadeUpVariants} className="space-y-6">
                         <h1 className="text-6xl font-semibold tracking-tight leading-none text-foreground">
                             Discover Insights Through
@@ -132,6 +130,6 @@ export const Hero = () => {
                     </motion.div>
                 </div>
             </motion.div>
-        </>
+        </div>
     );
 };
