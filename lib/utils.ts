@@ -24,12 +24,6 @@ export const searchGroups = [
     icon: XLogo,
   },
   {
-    id: 'analysis' as const,
-    name: 'Analysis',
-    description: 'Code, stock and currency stuff',
-    icon: Code,
-  },
-  {
     id: 'fun' as const,
     name: 'Fun',
     description: 'Talk to Grok like a digital friend',
@@ -40,12 +34,6 @@ export const searchGroups = [
     name: 'Academic',
     description: 'Search academic papers powered by Exa',
     icon: Book,
-  },
-  {
-    id: 'youtube' as const,
-    name: 'YouTube',
-    description: 'Search YouTube videos in real-time powered by Exa',
-    icon: YoutubeIcon,
   },
   {
     id: 'extreme' as const,
