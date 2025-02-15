@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-import { Globe } from "@/components/ui/globe";
+// import { Globe } from "@/components/ui/globe";
 
 export function Unite() {
 
@@ -32,9 +32,9 @@ export function Unite() {
           </p>
         </motion.div>
         <div className="absolute w-full bottom-0 inset-x-0 h-40 bg-gradient-to-b pointer-events-none select-none from-transparent dark:to-black to-white z-40" />
-        <div className="absolute w-full -bottom-32 h-72 md:h-full z-10">
+        {/* <div className="absolute w-full -bottom-32 h-72 md:h-full z-10">
           <Globe className="top-20" />
-        </div>
+        </div> */}
       </div>
     </div>
   );

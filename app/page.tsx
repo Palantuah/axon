@@ -12,14 +12,14 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import { Unite } from '@/components/landing/unite';
-
-
+import { Hero } from '@/components/landing/hero';
 
 export default function AboutPage() {
     const router = useRouter();
 
     return (
         <div className="min-h-screen bg-background overflow-hidden">
+            <Hero />
             <Unite />
 
             {/* Search Simulation */}
