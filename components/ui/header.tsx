@@ -174,23 +174,25 @@ export function Header() {
                                 animate="visible"
                                 transition={{ delay: 0.3 }}
                             >
-                                <Button
-                                    variant="ghost"
-                                    className="hidden md:inline-flex text-white/70 hover:text-white hover:bg-white/[0.05] rounded-full
+                                <Link href="/login" passHref>
+                                    <Button
+                                        variant="ghost"
+                                        className="hidden md:inline-flex text-white/70 hover:text-white hover:bg-white/[0.05] rounded-full
                            relative group overflow-hidden"
-                                >
-                                    <motion.span
-                                        className="relative z-10"
-                                        whileHover={{ scale: 1.05 }}
-                                        transition={{ duration: 0.2 }}
                                     >
-                                        Sign In
-                                    </motion.span>
-                                    <motion.div
-                                        className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 
+                                        <motion.span
+                                            className="relative z-10"
+                                            whileHover={{ scale: 1.05 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            Sign In
+                                        </motion.span>
+                                        <motion.div
+                                            className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 
                              group-hover:opacity-100 blur-sm transition-opacity duration-500"
-                                    />
-                                </Button>
+                                        />
+                                    </Button>
+                                </Link>
                             </motion.div>
 
                             <motion.div

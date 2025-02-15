@@ -1,17 +1,12 @@
 'use client';
 
-import { IconBrandGoogle } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-
-const CALLBACK_URL = '/calendar';
-const GOOGLE_CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
+import { oauthSignIn } from '@/app/login/actions'; // Import the server action
 
 interface AuthFormProps {
     className?: string;
@@ -19,28 +14,17 @@ interface AuthFormProps {
 
 export function MantraAuthForm({ className }: AuthFormProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
         try {
-            await signIn('google', {
-                callbackUrl: CALLBACK_URL,
-                scope: GOOGLE_CALENDAR_SCOPE,
-            });
+            await oauthSignIn(); // Call the server action
         } catch (error) {
             toast.error('Unable to connect with Google');
             console.error('Google sign-in error:', error);
             setIsLoading(false);
         }
     };
-
-    const BottomGradient = () => (
-        <>
-            <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-            <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-        </>
-    );
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-96 max-w-md mx-auto">
@@ -56,11 +40,9 @@ export function MantraAuthForm({ className }: AuthFormProps) {
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
-                            className="relative group/btn flex items-center justify-center w-full h-11 px-4 space-x-2 rounded-md bg-gray-50 dark:bg-zinc-900 text-sm font-medium text-neutral-700 dark:text-neutral-300 shadow-input hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                            className="relative flex items-center justify-center w-full h-11 px-4 space-x-2 rounded-md bg-gray-50 dark:bg-zinc-900 text-sm font-medium text-neutral-700 dark:text-neutral-300 shadow-input hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
                         >
-                            <IconBrandGoogle className="size-4" />
                             <span>Continue with Google</span>
-                            <BottomGradient />
                         </button>
                     </div>
                 </CardContent>
