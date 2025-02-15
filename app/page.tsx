@@ -10,25 +10,28 @@ import { Features } from '@/components/landing/features';
 import { Hero } from '@/components/landing/hero';
 import { Unite } from '@/components/landing/unite';
 import { Icons } from '@/components/landing/icons';
+import { Header } from '@/components/ui/header';
 
 export default function AboutPage() {
     const router = useRouter();
 
     return (
         <div className="min-h-screen bg-background overflow-hidden">
-            <Hero />
-            <Unite />
-            <Demo />
-            <Features />
+            <Header />
+            <main>
+                <Hero />
+                <Unite />
+                <Demo />
+                <Features />
+            </main>
 
             {/* Footer Section */}
             <footer className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black">
-                <div className="mx-auto max-w-5xl px-4 py-12">
+                <div className="mx-auto max-w-5xl px-4 py-6">
                     <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
                         <div className="flex items-center gap-3">
-                            <div className="h-6`` w-16 flex items-center justify-center transform-gpu">
-                            <Icons.axon />
-
+                            <div className="h-6 w-16 flex items-center justify-center transform-gpu">
+                                <Icons.axon />
                             </div>
                             <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                 © {new Date().getFullYear()} All rights reserved.

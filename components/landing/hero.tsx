@@ -42,21 +42,21 @@ export const Hero = () => {
     const contentScale = useTransform(scrollY, [0, 400], [1, 0.95]);
 
     return (
-        <div className="relative z-0 flex flex-col items-center justify-center">
+        <div className="relative z-0 flex flex-col items-center justify-center pt-16">
             {/* Move GradientBackground to z-index 0 */}
-                <GradientBackground />
+            <GradientBackground />
             {/* Content with fade effect - increase z-index */}
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
                 style={{ opacity: contentOpacity, scale: contentScale }}
-                className="min-h-[95vh] flex flex-col items-center justify-center px-4 relative z-10"
+                className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 relative z-10"
             >
                 {/* Main content - remove redundant z-10 since parent already has it */}
                 <div className="max-w-5xl mx-auto text-center space-y-10 relative">
                     <motion.div variants={fadeUpVariants} className="space-y-6">
-                        <h1 className="text-6xl font-semibold tracking-tight leading-none text-foreground">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-none text-foreground">
                             Discover Insights Through
                         </h1>
                         <div>
@@ -64,14 +64,14 @@ export const Hero = () => {
                                 {' '}
                                 <span
                                     className="bg-clip-text text-transparent bg-gradient-to-r from-violet-500/90 via-blue-500/90 to-emerald-500/90
-                             px-4 block text-7xl font-bold"
+                             px-4 block text-5xl sm:text-6xl lg:text-7xl font-bold"
                                 >
                                     Unbiased Analysis
                                 </span>
                             </Cover>
                         </div>
 
-                        <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-muted-foreground text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
                             Bridge the gap between information complexity and clarity with rigorous research and
                             data-driven insights.
                         </p>

@@ -1,17 +1,18 @@
 import { motion } from 'framer-motion';
 import { Brain, Search, Image, Command, GraduationCap, Sparkles } from 'lucide-react';
-
+import HalftoneWaves from '@/components/ui/halftone-waves';
 export function Features() {
     return (
-        <div className="py-24 px-4">
+        <div className="px-4 h-full relative z-10 overflow-hidden">
+            <HalftoneWaves />
             <motion.div
-                className="container max-w-5xl mx-auto space-y-16"
+                className="relative max-w-5xl mx-auto z-20 flex flex-col py-16 gap-12"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
             >
-                <div className="text-center space-y-4">
-                    <h2 className="text-3xl font-bold">Advanced Search Features</h2>
+                <div className="relative text-center space-y-4">
+                    <h2 className="text-3xl font-bold text-white">Advanced Search Features</h2>
                     <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
                         Experience a smarter way to search with AI-powered features that understand your queries better.
                     </p>

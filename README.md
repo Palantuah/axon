@@ -25,7 +25,9 @@ A minimalistic AI-powered search engine that helps you find information on the i
 <div align="center" markdown="1">
 
   [![Warp](https://github.com/user-attachments/assets/2bda420d-4211-4900-a37e-e3c7056d799c)](https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=axon)<br>
-  ### **[Warp, the intelligent terminal](https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=axon)**<br>
+
+### **[Warp, the intelligent terminal](https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=axon)**<br>
+
   [Available for MacOS and Linux](https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=axon)<br>
   [Visit warp.dev to learn more](https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=axon)
 
@@ -40,13 +42,14 @@ A minimalistic AI-powered search engine that helps you find information on the i
 - **Programming**: Run code snippets in multiple languages using E2B's API.
 - **Maps**: Get the location of any place using Google Maps API, Mapbox API, and TripAdvisor API.
 - **YouTube Search**: Search for videos on YouTube and get timestamps and transcripts [powered by Exa.AI - the Web Search API](https://exa.ai/).
-- **Academic Search**: Search for academic papers [powered by Exa.AI - the Web Search API](https://exa.ai/). 
+- **Academic Search**: Search for academic papers [powered by Exa.AI - the Web Search API](https://exa.ai/).
 - **X Posts Search**: Search for posts on X.com [powered by Exa.AI - the Web Search API](https://exa.ai/).
 - **Flight Tracker**: Track flights using AviationStack's API.
 - **Trending Movies and TV Shows**: Get information about trending movies and TV shows.
 - **Movie or TV Show Search**: Get information about any movie or TV show.
 
 ## LLM used
+
 - [xAI's Grok](https://x.ai/grok)
 - [Anthropic's Claude 3.5 Sonnet](https://www.anthropic.com/news/claude-3-5-sonnet)
 - [Meta's Llama 3.3 70B by Cerebras](https://inference-docs.cerebras.ai/introduction)
@@ -54,6 +57,7 @@ A minimalistic AI-powered search engine that helps you find information on the i
 - [OpenAI's o3-mini](https://openai.com/index/openai-o3-mini/)
 
 ## Built with
+
 - [Next.js](https://nextjs.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Vercel AI SDK](https://sdk.vercel.ai/docs)
