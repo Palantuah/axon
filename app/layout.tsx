@@ -5,7 +5,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Metadata, Viewport } from "next";
 import { Inter } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { Providers } from './providers';
 
@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     siteName: "Axon",
   },
   keywords: [
+    "Palantuah",
+    "Palantuah Labs",
+    "Treehacks",
     "Axon",
     "axon",
     "axon.app",
@@ -33,11 +36,13 @@ export const metadata: Metadata = {
     "AI Search Engine",
     "mplx.run",
     "mplx ai",
-    "zaid mukaddam",
     "axon.how",
     "search engine",
     "AI",
     "perplexity",
+    "Aadvik Vashist",
+    "Noah Pan Stier",
+    "Vedant Srinivas",
   ]
 };
 
@@ -67,13 +72,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${syne.variable} font-sans antialiased`}>
+      <body className={`${GeistSans.variable} ${syne.variable} font-sans antialiased`} suppressHydrationWarning>
         <NuqsAdapter>
           <Providers>
             <Toaster position="top-center" richColors />
-            <main className="flex flex-col items-center justify-center h-screen w-full overflow-y-auto">
-
-            {children}
+            <main className="flex flex-col min-h-screen w-full">
+              {children}
             </main>
           </Providers>
         </NuqsAdapter>

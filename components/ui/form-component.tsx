@@ -3,10 +3,11 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatRequestOptions, CreateMessage, Message } from 'ai';
+import { UIMessage } from '@ai-sdk/ui-utils';
 import { toast } from 'sonner';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from './hover-card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import useWindowSize from '@/hooks/use-window-size';
 import { X } from 'lucide-react';
 import {
@@ -26,13 +27,13 @@ interface ModelSwitcherProps {
     className?: string;
     showExperimentalModels: boolean;
     attachments: Array<Attachment>;
-    messages: Array<Message>;
+    messages: Array<UIMessage>;
 }
 
 const OpenAIIcon = ({ className }: { className?: string }) => (
-    <svg fill="#000000" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" className={className}>
-        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+    <svg fill="currentColor" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" className={className}>
+        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
         <g id="SVGRepo_iconCarrier">
             <title>OpenAI icon</title>
             <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"></path>
@@ -51,8 +52,17 @@ const AnthropicIcon = ({ className }: { className?: string }) => (
 );
 
 const models = [
-    // { value: "axon-default", label: "Grok 2.0", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 model", color: "glossyblack", vision: false, experimental: false, category: "Stable" },
-    // { value: "axon-grok-vision", label: "Grok 2.0 Vision", icon: XAIIcon, iconClass: "!text-neutral-300", description: "xAI's Grok 2.0 Vision model", color: "steel", vision: true, experimental: false, category: "Stable" },
+    {
+        value: 'axon-default',
+        label: 'o3 mini high',
+        icon: OpenAIIcon,
+        iconClass: '!text-neutral-300',
+        description: "OpenAI's O3 Mini High model",
+        color: 'glossyblack',
+        vision: false,
+        experimental: true,
+        category: 'Experimental',
+    },
     {
         value: 'axon-4o',
         label: 'OpenAI 4o',
@@ -75,7 +85,6 @@ const models = [
         experimental: false,
         category: 'Stable',
     },
-    // { value: "axon-llama", label: "Llama 3.3 70B", icon: "/cerebras.png", iconClass: "!text-neutral-900 dark:!text-white", description: "Meta's Llama model by Cerebras", color: "offgray", vision: false, experimental: true, category: "Experimental" },
     {
         value: 'axon-r1',
         label: 'DeepSeek R1 Distilled',
@@ -84,9 +93,10 @@ const models = [
         description: 'DeepSeek R1 model by Groq',
         color: 'sapphire',
         vision: false,
-        experimental: true,
-        category: 'Experimental',
+        experimental: false,
+        category: 'Stable',
     },
+    
 ];
 
 const getColorClasses = (color: string, isSelected: boolean = false) => {
@@ -96,32 +106,32 @@ const getColorClasses = (color: string, isSelected: boolean = false) => {
     switch (color) {
         case 'glossyblack':
             return isSelected
-                ? `${baseClasses} ${selectedClasses} !bg-[#4D4D4D] dark:!bg-[#3A3A3A] !text-white hover:!bg-[#3D3D3D] dark:hover:!bg-[#434343] !border-[#4D4D4D] dark:!border-[#3A3A3A] !ring-[#4D4D4D] dark:!ring-[#3A3A3A] focus:!ring-[#4D4D4D] dark:focus:!ring-[#3A3A3A]`
-                : `${baseClasses} !text-[#4D4D4D] dark:!text-[#E5E5E5] hover:!bg-[#4D4D4D] hover:!text-white dark:hover:!bg-[#3A3A3A] dark:hover:!text-white`;
+                ? `${baseClasses} ${selectedClasses} !bg-[#2D2D2D] dark:!bg-[#3A3A3A] !text-white hover:!bg-[#1D1D1D] dark:hover:!bg-[#434343] !border-[#2D2D2D] dark:!border-[#3A3A3A] !ring-[#2D2D2D] dark:!ring-[#3A3A3A] focus:!ring-[#2D2D2D] dark:focus:!ring-[#3A3A3A]`
+                : `${baseClasses} !text-[#2D2D2D] dark:!text-[#E5E5E5] hover:!bg-[#2D2D2D] hover:!text-white dark:hover:!bg-[#3A3A3A] dark:hover:!text-white`;
         case 'steel':
             return isSelected
-                ? `${baseClasses} ${selectedClasses} !bg-[#4B82B8] dark:!bg-[#4A7CAD] !text-white hover:!bg-[#3B6C9D] dark:hover:!bg-[#3A6C9D] !border-[#4B82B8] dark:!border-[#4A7CAD] !ring-[#4B82B8] dark:!ring-[#4A7CAD] focus:!ring-[#4B82B8] dark:focus:!ring-[#4A7CAD]`
-                : `${baseClasses} !text-[#4B82B8] dark:!text-[#A7C5E2] hover:!bg-[#4B82B8] hover:!text-white dark:hover:!bg-[#4A7CAD] dark:hover:!text-white`;
+                ? `${baseClasses} ${selectedClasses} !bg-[#3B6C9D] dark:!bg-[#4A7CAD] !text-white hover:!bg-[#2B5C8D] dark:hover:!bg-[#3A6C9D] !border-[#3B6C9D] dark:!border-[#4A7CAD] !ring-[#3B6C9D] dark:!ring-[#4A7CAD] focus:!ring-[#3B6C9D] dark:focus:!ring-[#4A7CAD]`
+                : `${baseClasses} !text-[#3B6C9D] dark:!text-[#A7C5E2] hover:!bg-[#3B6C9D] hover:!text-white dark:hover:!bg-[#4A7CAD] dark:hover:!text-white`;
         case 'offgray':
             return isSelected
-                ? `${baseClasses} ${selectedClasses} !bg-[#505050] dark:!bg-[#505050] !text-white hover:!bg-[#404040] dark:hover:!bg-[#404040] !border-[#505050] dark:!border-[#505050] !ring-[#505050] dark:!ring-[#505050] focus:!ring-[#505050] dark:focus:!ring-[#505050]`
-                : `${baseClasses} !text-[#505050] dark:!text-[#D0D0D0] hover:!bg-[#505050] hover:!text-white dark:hover:!bg-[#505050] dark:hover:!text-white`;
+                ? `${baseClasses} ${selectedClasses} !bg-[#404040] dark:!bg-[#505050] !text-white hover:!bg-[#303030] dark:hover:!bg-[#404040] !border-[#404040] dark:!border-[#505050] !ring-[#404040] dark:!ring-[#505050] focus:!ring-[#404040] dark:focus:!ring-[#505050]`
+                : `${baseClasses} !text-[#404040] dark:!text-[#D0D0D0] hover:!bg-[#404040] hover:!text-white dark:hover:!bg-[#505050] dark:hover:!text-white`;
         case 'purple':
             return isSelected
-                ? `${baseClasses} ${selectedClasses} !bg-[#6366F1] dark:!bg-[#5B54E5] !text-white hover:!bg-[#4F46E5] dark:hover:!bg-[#4B44D5] !border-[#6366F1] dark:!border-[#5B54E5] !ring-[#6366F1] dark:!ring-[#5B54E5] focus:!ring-[#6366F1] dark:focus:!ring-[#5B54E5]`
-                : `${baseClasses} !text-[#6366F1] dark:!text-[#A5A0FF] hover:!bg-[#6366F1] hover:!text-white dark:hover:!bg-[#5B54E5] dark:hover:!text-white`;
+                ? `${baseClasses} ${selectedClasses} !bg-[#4F46E5] dark:!bg-[#5B54E5] !text-white hover:!bg-[#3F36D5] dark:hover:!bg-[#4B44D5] !border-[#4F46E5] dark:!border-[#5B54E5] !ring-[#4F46E5] dark:!ring-[#5B54E5] focus:!ring-[#4F46E5] dark:focus:!ring-[#5B54E5]`
+                : `${baseClasses} !text-[#4F46E5] dark:!text-[#A5A0FF] hover:!bg-[#4F46E5] hover:!text-white dark:hover:!bg-[#5B54E5] dark:hover:!text-white`;
         case 'sapphire':
             return isSelected
-                ? `${baseClasses} ${selectedClasses} !bg-[#2E4A5C] dark:!bg-[#2E4A5C] !text-white hover:!bg-[#1E3A4C] dark:hover:!bg-[#1E3A4C] !border-[#2E4A5C] dark:!border-[#2E4A5C] !ring-[#2E4A5C] dark:!ring-[#2E4A5C] focus:!ring-[#2E4A5C] dark:focus:!ring-[#2E4A5C]`
-                : `${baseClasses} !text-[#2E4A5C] dark:!text-[#89B4D4] hover:!bg-[#2E4A5C] hover:!text-white dark:hover:!bg-[#2E4A5C] dark:hover:!text-white`;
+                ? `${baseClasses} ${selectedClasses} !bg-[#1E3A4C] dark:!bg-[#2E4A5C] !text-white hover:!bg-[#0E2A3C] dark:hover:!bg-[#1E3A4C] !border-[#1E3A4C] dark:!border-[#2E4A5C] !ring-[#1E3A4C] dark:!ring-[#2E4A5C] focus:!ring-[#1E3A4C] dark:focus:!ring-[#2E4A5C]`
+                : `${baseClasses} !text-[#1E3A4C] dark:!text-[#89B4D4] hover:!bg-[#1E3A4C] hover:!text-white dark:hover:!bg-[#2E4A5C] dark:hover:!text-white`;
         case 'bronze':
             return isSelected
-                ? `${baseClasses} ${selectedClasses} !bg-[#9B6E4C] dark:!bg-[#9B6E4C] !text-white hover:!bg-[#8B5E3C] dark:hover:!bg-[#8B5E3C] !border-[#9B6E4C] dark:!border-[#9B6E4C] !ring-[#9B6E4C] dark:!ring-[#9B6E4C] focus:!ring-[#9B6E4C] dark:focus:!ring-[#9B6E4C]`
-                : `${baseClasses} !text-[#9B6E4C] dark:!text-[#D4B594] hover:!bg-[#9B6E4C] hover:!text-white dark:hover:!bg-[#9B6E4C] dark:hover:!text-white`;
+                ? `${baseClasses} ${selectedClasses} !bg-[#8B5E3C] dark:!bg-[#9B6E4C] !text-white hover:!bg-[#7B4E2C] dark:hover:!bg-[#8B5E3C] !border-[#8B5E3C] dark:!border-[#9B6E4C] !ring-[#8B5E3C] dark:!ring-[#9B6E4C] focus:!ring-[#8B5E3C] dark:focus:!ring-[#9B6E4C]`
+                : `${baseClasses} !text-[#8B5E3C] dark:!text-[#D4B594] hover:!bg-[#8B5E3C] hover:!text-white dark:hover:!bg-[#9B6E4C] dark:hover:!text-white`;
         default:
             return isSelected
-                ? `${baseClasses} ${selectedClasses} !bg-neutral-500 dark:!bg-neutral-700 !text-white hover:!bg-neutral-600 dark:hover:!bg-neutral-800 !border-neutral-500 dark:!border-neutral-700`
-                : `${baseClasses} !text-neutral-600 dark:!text-neutral-300 hover:!bg-neutral-500 hover:!text-white dark:hover:!bg-neutral-700 dark:hover:!text-white`;
+                ? `${baseClasses} ${selectedClasses} !bg-neutral-600 dark:!bg-neutral-700 !text-white hover:!bg-neutral-700 dark:hover:!bg-neutral-800 !border-neutral-600 dark:!border-neutral-700`
+                : `${baseClasses} !text-neutral-700 dark:!text-neutral-300 hover:!bg-neutral-600 hover:!text-white dark:hover:!bg-neutral-700 dark:hover:!text-white`;
     }
 };
 
@@ -170,40 +180,55 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
                     'rounded-full transition-all duration-300',
                     'border border-neutral-200 dark:border-neutral-800',
                     'hover:shadow-md',
+                    'min-w-[32px]',
                     getColorClasses(selectedModelData?.color || 'neutral', true),
+                    "bg-muted",
                     className,
                 )}
             >
-                {selectedModelData &&
-                    (typeof selectedModelData.icon === 'string' ? (
-                        <img
-                            src={selectedModelData.icon}
-                            alt={selectedModelData.label}
-                            className={cn('w-3.5 h-3.5 object-contain', selectedModelData.iconClass)}
-                        />
-                    ) : (
-                        <selectedModelData.icon className={cn('w-3.5 h-3.5', selectedModelData.iconClass)} />
-                    ))}
-                <span className="hidden sm:block text-xs font-medium overflow-hidden">
-                    <TextMorph
-                        variants={{
-                            initial: { opacity: 0, y: 10 },
-                            animate: { opacity: 1, y: 0 },
-                            exit: { opacity: 0, y: -10 },
-                        }}
-                        transition={{
-                            type: 'spring',
-                            stiffness: 500,
-                            damping: 30,
-                            mass: 0.5,
-                        }}
-                    >
-                        {selectedModelData?.label || ''}
-                    </TextMorph>
-                </span>
+                <motion.div 
+                    className="flex items-center gap-2"
+                    layout
+                    transition={{
+                        duration: 0.2,
+                        ease: [0.32, 0.72, 0, 1]
+                    }}
+                >
+                    {selectedModelData &&
+                        (typeof selectedModelData.icon === 'string' ? (
+                            <img
+                                src={selectedModelData.icon}
+                                alt={selectedModelData.label}
+                                className={cn('w-3.5 h-3.5 object-contain flex-shrink-0', selectedModelData.iconClass)}
+                            />
+                        ) : (
+                            <selectedModelData.icon className={cn('w-3.5 h-3.5 flex-shrink-0', selectedModelData.iconClass)} />
+                        ))}
+                    <div className="hidden sm:block h-4 overflow-hidden">
+                        <AnimatePresence mode="wait" initial={false}>
+                            <motion.div
+                                key={selectedModelData?.label || ''}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{
+                                    duration: 0.15,
+                                    ease: [0.32, 0.72, 0, 1]
+                                }}
+                                className="text-xs font-medium whitespace-nowrap"
+                            >
+                                <TextMorph
+                                    className="text-xs font-medium"
+                                >
+                                    {selectedModelData?.label || ''}
+                                </TextMorph>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+                </motion.div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                className="w-[220px] p-1 !font-sans rounded-lg bg-white dark:bg-neutral-900 sm:ml-4 !mt-1.5 sm:m-auto !z-[52] shadow-lg border border-neutral-200 dark:border-neutral-800"
+                className="w-[220px] p-1 !font-sans rounded-lg bg-muted !z-[52] shadow-lg border border-neutral-200 dark:border-neutral-800 sm:ml-4 !mt-1.5 sm:m-auto"
                 align="start"
                 sideOffset={8}
             >
@@ -232,7 +257,7 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
                                             'p-1.5 rounded-md',
                                             selectedModel === model.value
                                                 ? 'bg-black/10 dark:bg-white/10'
-                                                : 'bg-black/5 dark:bg-white/5',
+                                                : 'bg-muted/50',
                                             'group-hover:bg-black/10 dark:group-hover:bg-white/10',
                                         )}
                                     >
@@ -463,7 +488,7 @@ interface FormComponentProps {
     fileInputRef: React.RefObject<HTMLInputElement>;
     inputRef: React.RefObject<HTMLTextAreaElement>;
     stop: () => void;
-    messages: Array<Message>;
+    messages: Array<UIMessage>;
     append: (
         message: Message | CreateMessage,
         chatRequestOptions?: ChatRequestOptions,
@@ -622,7 +647,11 @@ const SelectionContent = ({ ...props }) => {
 };
 
 const GroupSelector = ({ selectedGroup, onGroupSelect }: GroupSelectorProps) => {
-    return <SelectionContent selectedGroup={selectedGroup} onGroupSelect={onGroupSelect} />;
+    const memoizedOnGroupSelect = useCallback((group: SearchGroup) => {
+        onGroupSelect(group);
+    }, [onGroupSelect]);
+
+    return <SelectionContent selectedGroup={selectedGroup} onGroupSelect={memoizedOnGroupSelect} />;
 };
 
 const FormComponent: React.FC<FormComponentProps> = ({
@@ -659,6 +688,29 @@ const FormComponent: React.FC<FormComponentProps> = ({
     const MIN_HEIGHT = 72;
     const MAX_HEIGHT = 400;
 
+    const uploadFile = useCallback(async (file: File): Promise<Attachment> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            } else {
+                throw new Error('Failed to upload file');
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            toast.error('Failed to upload file, please try again!');
+            throw error;
+        }
+    }, []);
+
     const autoResizeInput = (target: HTMLTextAreaElement) => {
         if (!target) return;
         requestAnimationFrame(() => {
@@ -691,29 +743,6 @@ const FormComponent: React.FC<FormComponentProps> = ({
         [setSelectedGroup, resetSuggestedQuestions, inputRef],
     );
 
-    const uploadFile = async (file: File): Promise<Attachment> => {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return data;
-            } else {
-                throw new Error('Failed to upload file');
-            }
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            toast.error('Failed to upload file, please try again!');
-            throw error;
-        }
-    };
-
     const handleFileChange = useCallback(
         async (event: React.ChangeEvent<HTMLInputElement>) => {
             const files = Array.from(event.target.files || []);
@@ -738,7 +767,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
                 event.target.value = '';
             }
         },
-        [attachments, setAttachments],
+        [attachments, setAttachments, uploadFile],
     );
 
     const removeAttachment = (index: number) => {
@@ -1062,9 +1091,9 @@ const FormComponent: React.FC<FormComponentProps> = ({
                     )}
                 >
                     <div className="flex items-center gap-2">
-                        {!hasSubmitted && selectedModel !== 'axon-o3-mini' && selectedGroup !== 'extreme' ? (
+                        {/* {!hasSubmitted && selectedModel !== 'axon-o3-mini' && selectedGroup !== 'extreme' ? (
                             <GroupSelector selectedGroup={selectedGroup} onGroupSelect={handleGroupSelect} />
-                        ) : null}
+                        ) : null} */}
                         <ModelSwitcher
                             selectedModel={selectedModel}
                             setSelectedModel={setSelectedModel}

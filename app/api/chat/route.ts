@@ -1,6 +1,7 @@
 // /app/api/chat/route.ts
 import { getGroupConfig } from '@/app/actions';
 import { serverEnv } from '@/env/server';
+import{ openai} from '@ai-sdk/openai'
 import { xai } from '@ai-sdk/xai';
 import { anthropic } from '@ai-sdk/anthropic'
 import { groq } from '@ai-sdk/groq'
@@ -23,14 +24,13 @@ import { z } from 'zod';
 
 const axon = customProvider({
     languageModels: {
-        'axon-default': xai('grok-2-1212'),
-        'axon-grok-vision': xai('grok-2-vision-1212'),
+        'axon-default': openai('gpt-4o'),
+        'axon-4o': openai('gpt-4o'),
         'axon-sonnet': anthropic('claude-3-5-sonnet-20241022'),
         'axon-r1': wrapLanguageModel({
             model: groq('deepseek-r1-distill-llama-70b'),
             middleware: extractReasoningMiddleware({ tagName: 'think' })
         }),
-        'axon-llama-groq': groq("llama-3.3-70b-versatile"),
     }
 })
 
@@ -116,6 +116,197 @@ const deduplicateByDomainAndUrl = <T extends { url: string }>(items: T[]): T[] =
         return false;
     });
 };
+
+interface ValidationResult {
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+}
+
+interface TokenManagement {
+    maxInputTokens: number;
+    maxOutputTokens: number;
+    currentTokenCount: number;
+}
+
+const TOKEN_LIMITS = {
+    GPT4: {
+        input: 8192,
+        output: 4096
+    },
+    DEEPSEEK: {
+        input: 6000,
+        output: 4096
+    }
+} as const;
+
+interface SearchResult {
+    type: 'web' | 'academic';
+    query: {
+        query: string;
+        rationale: string;
+        source: 'web' | 'academic' | 'both';
+        priority: number;
+        expected_insights: string[];
+    };
+    results: Array<{
+        source: 'web' | 'academic';
+        title: string;
+        url: string;
+        content: string;
+    }>;
+}
+
+const RATE_LIMIT_RETRY_DELAY = 2000; // 2 seconds
+const MAX_RETRIES = 3;
+
+const withRateLimitRetry = async <T>(
+    operation: () => Promise<T>,
+    retries = MAX_RETRIES
+): Promise<T> => {
+    try {
+        return await operation();
+    } catch (error: any) {
+        if (error.message?.includes('Rate limit reached') && retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_RETRY_DELAY));
+            return withRateLimitRetry(operation, retries - 1);
+        }
+        throw error;
+    }
+};
+
+const generateResearchPlan = async (topic: string, model = groq('deepseek-r1-distill-llama-70b')) => {
+    try {
+        return await withRateLimitRetry(() => 
+            generateObject({
+                model,
+                temperature: 0.5,
+                schema: z.object({
+                    search_queries: z.array(z.object({
+                        query: z.string(),
+                        rationale: z.string(),
+                        source: z.enum(['web', 'academic', 'both']),
+                        priority: z.number().min(1).max(5),
+                        expected_insights: z.array(z.string()).min(2).max(4)
+                    })).length(5),
+                    required_analyses: z.array(z.object({
+                        type: z.string(),
+                        description: z.string(),
+                        importance: z.number().min(1).max(5),
+                        focus_areas: z.array(z.string()).min(2).max(4)
+                    })).min(2).max(4)
+                }),
+                prompt: `You are Axon's Research Planning System. Create a focused research plan for: "${topic}".
+
+                REQUIREMENTS:
+                1. Generate EXACTLY 5 high-impact search queries that:
+                   - Cover distinct aspects of the topic
+                   - Maximize information diversity
+                   - Balance factual reporting with analytical depth
+                   - Include both mainstream and academic perspectives
+                
+                2. For each query, provide:
+                   - Clear rationale for inclusion
+                   - Source preference (web/academic/both)
+                   - Priority (1-5, where 1 is highest)
+                   - 2-4 expected key insights
+                
+                3. Design 2-4 analysis types that will:
+                   - Synthesize findings across sources
+                   - Identify patterns and contradictions
+                   - Evaluate source credibility
+                   - Address potential biases
+                
+                QUALITY CRITERIA:
+                - Queries must be specific and targeted
+                - Each query should serve a unique purpose
+                - Prioritize recent and authoritative sources
+                - Ensure comprehensive topic coverage
+                
+                FORMAT:
+                Strictly follow the schema structure with:
+                - Exactly 5 search queries
+                - 2-4 required analyses
+                - All priority scores between 1-5
+                - Clear rationales and descriptions
+                
+                Remember: This plan will guide a multi-stage analysis process focused on delivering comprehensive, balanced insights.`
+            })
+        );
+    } catch (error) {
+        console.error('Failed to generate research plan with deepseek, falling back to GPT-4:', error);
+        // Fallback to GPT-4 with reduced temperature
+        return generateObject({
+            model: openai('gpt-4o'),
+            temperature: 0.3,
+            schema: z.object({
+                search_queries: z.array(z.object({
+                    query: z.string(),
+                    rationale: z.string(),
+                    source: z.enum(['web', 'academic', 'both']),
+                    priority: z.number().min(1).max(5),
+                    expected_insights: z.array(z.string()).min(2).max(4)
+                })).length(5),
+                required_analyses: z.array(z.object({
+                    type: z.string(),
+                    description: z.string(),
+                    importance: z.number().min(1).max(5),
+                    focus_areas: z.array(z.string()).min(2).max(4)
+                })).min(2).max(4)
+            }),
+            prompt: `You are Axon's Research Planning System. Create a focused research plan for: "${topic}".
+
+            REQUIREMENTS:
+            1. Generate EXACTLY 5 high-impact search queries that:
+               - Cover distinct aspects of the topic
+               - Maximize information diversity
+               - Balance factual reporting with analytical depth
+               - Include both mainstream and academic perspectives
+            
+            2. For each query, provide:
+               - Clear rationale for inclusion
+               - Source preference (web/academic/both)
+               - Priority (1-5, where 1 is highest)
+               - 2-4 expected key insights
+            
+            3. Design 2-4 analysis types that will:
+               - Synthesize findings across sources
+               - Identify patterns and contradictions
+               - Evaluate source credibility
+               - Address potential biases
+            
+            QUALITY CRITERIA:
+            - Queries must be specific and targeted
+            - Each query should serve a unique purpose
+            - Prioritize recent and authoritative sources
+            - Ensure comprehensive topic coverage
+            
+            FORMAT:
+            Strictly follow the schema structure with:
+            - Exactly 5 search queries
+            - 2-4 required analyses
+            - All priority scores between 1-5
+            - Clear rationales and descriptions
+            
+            Remember: This plan will guide a multi-stage analysis process focused on delivering comprehensive, balanced insights.`
+        });
+    }
+};
+
+interface Finding {
+    finding: string;
+    confidence: number;
+}
+
+interface AnalysisResult {
+    type: string;
+    findings: Array<{
+        insight: string;
+        evidence: string[];
+        confidence: number;
+    }>;
+    implications: string[];
+}
 
 // Modify the POST function to use the new handler
 export async function POST(req: Request) {
@@ -566,11 +757,11 @@ export async function POST(req: Request) {
                             const tvly = tavily({ apiKey });
                             const exa = new Exa(serverEnv.EXA_API_KEY as string);
 
-                            // Send initial plan status update (without steps count and extra details)
+                            // Send initial plan status update
                             dataStream.writeMessageAnnotation({
                                 type: 'research_update',
                                 data: {
-                                    id: 'research-plan-initial', // unique id for the initial state
+                                    id: 'research-plan-initial',
                                     type: 'plan',
                                     status: 'running',
                                     title: 'Research Plan',
@@ -580,31 +771,53 @@ export async function POST(req: Request) {
                                 }
                             });
 
-                            // Now generate the research plan
-                            const { object: researchPlan } = await generateObject({
-                                model: xai("grok-beta"),
-                                temperature: 0.5,
-                                schema: z.object({
-                                    search_queries: z.array(z.object({
-                                        query: z.string(),
-                                        rationale: z.string(),
-                                        source: z.enum(['web', 'academic', 'both']),
-                                        priority: z.number().min(1).max(5)
-                                    })).max(12),
-                                    required_analyses: z.array(z.object({
-                                        type: z.string(),
-                                        description: z.string(),
-                                        importance: z.number().min(1).max(5)
-                                    })).max(8)
-                                }),
-                                prompt: `Create a focused research plan for the topic: "${topic}". 
-                                        Keep the plan concise but comprehensive, with:
-                                        - 4-12 targeted search queries (each can use web, academic, or both sources)
-                                        - 2-8 key analyses to perform
-                                        - Prioritize the most important aspects to investigate
-                                        
-                                        Consider different angles and potential controversies, but maintain focus on the core aspects.
-                                        Ensure the total number of steps (searches + analyses) does not exceed 20.`
+                            // Generate research plan with retry and fallback
+                            const { object: researchPlan } = await generateResearchPlan(topic);
+
+                            // Validate research plan structure
+                            const validateResearchPlan = (plan: typeof researchPlan): ValidationResult => {
+                                const validation: ValidationResult = {
+                                    isValid: true,
+                                    errors: [],
+                                    warnings: []
+                                };
+
+                                // Check query distribution
+                                const sourceTypes = plan.search_queries.map(q => q.source);
+                                const hasWeb = sourceTypes.includes('web');
+                                const hasAcademic = sourceTypes.includes('academic');
+                                if (!hasWeb || !hasAcademic) {
+                                    validation.warnings.push("Plan lacks balance between web and academic sources");
+                                }
+
+                                // Check priority distribution
+                                const priorities = plan.search_queries.map(q => q.priority);
+                                const uniquePriorities = new Set(priorities);
+                                if (uniquePriorities.size < 3) {
+                                    validation.warnings.push("Low variation in priority assignments");
+                                }
+
+                                // Validate query quality
+                                plan.search_queries.forEach((query, index) => {
+                                    if (query.query.length < 10) {
+                                        validation.errors.push(`Query ${index + 1} is too short`);
+                                    }
+                                    if (query.rationale.length < 20) {
+                                        validation.errors.push(`Rationale ${index + 1} lacks detail`);
+                                    }
+                                });
+
+                                return validation;
+                            };
+
+                            const planValidation = validateResearchPlan(researchPlan);
+                            if (planValidation.errors.length > 0) {
+                                throw new Error(`Invalid research plan: ${planValidation.errors.join(", ")}`);
+                            }
+                            
+                            // Log warnings but continue execution
+                            planValidation.warnings.forEach(warning => {
+                                console.warn(`Research plan warning: ${warning}`);
                             });
 
                             // Generate IDs for all steps based on the plan
@@ -656,8 +869,8 @@ export async function POST(req: Request) {
                             });
 
                             // Execute searches
-                            const searchResults = [];
-                            let searchIndex = 0;  // Add index tracker
+                            const searchResults: SearchResult[] = [];
+                            let searchIndex = 0;
 
                             for (const step of stepIds.searchSteps) {
                                 // Send running annotation for this search step
@@ -742,9 +955,153 @@ export async function POST(req: Request) {
                                 searchIndex++;  // Increment index
                             }
 
-                            // Perform analyses
-                            let analysisIndex = 0;  // Add index tracker
+                            // Intermediate summarization using GPT-4
+                            const summarizeSearchResults = async (results: typeof searchResults) => {
+                                const summaries = [];
+                                for (const result of results) {
+                                    try {
+                                        const { object: summary } = await generateObject({
+                                            model: openai('gpt-4o'),
+                                            temperature: 0.1,
+                                            schema: z.object({
+                                                query_summary: z.object({
+                                                    main_findings: z.array(z.object({
+                                                        finding: z.string(),
+                                                        confidence: z.number().min(0).max(1),
+                                                        supporting_sources: z.array(z.string()),
+                                                        potential_biases: z.array(z.string())
+                                                    })).min(1).max(5),
+                                                    contrasting_viewpoints: z.array(z.object({
+                                                        viewpoint: z.string(),
+                                                        evidence_strength: z.number().min(0).max(1),
+                                                        source_quality: z.string(),
+                                                        limitations: z.array(z.string())
+                                                    })).default([]),
+                                                    information_gaps: z.array(z.string()).default([]),
+                                                    source_evaluation: z.object({
+                                                        credibility_score: z.number().min(0).max(1),
+                                                        diversity_score: z.number().min(0).max(1),
+                                                        recency_score: z.number().min(0).max(1)
+                                                    }).default({
+                                                        credibility_score: 0.5,
+                                                        diversity_score: 0.5,
+                                                        recency_score: 0.5
+                                                    })
+                                                }),
+                                                meta_analysis: z.object({
+                                                    relevance_to_query: z.number().min(0).max(1),
+                                                    coverage_breadth: z.number().min(0).max(1),
+                                                    key_takeaways: z.array(z.string()).min(1).max(3)
+                                                }).default({
+                                                    relevance_to_query: 0.5,
+                                                    coverage_breadth: 0.5,
+                                                    key_takeaways: ["Analysis pending"]
+                                                })
+                                            }),
+                                            prompt: `You are Axon's Precision Research Synthesizer analyzing results for the query: "${result.query.query}"
 
+                                            OBJECTIVE:
+                                            Analyze and synthesize search results with focus on:
+                                            1. Factual accuracy and evidence strength
+                                            2. Diverse perspective representation
+                                            3. Source credibility assessment
+                                            4. Information completeness
+                                            
+                                            ANALYSIS REQUIREMENTS:
+                                            - Identify core findings with confidence levels
+                                            - Highlight contrasting viewpoints (if any)
+                                            - Assess source quality and biases
+                                            - Note information gaps (if any)
+                                            - Evaluate overall result quality
+                                            
+                                            CRITICAL GUIDELINES:
+                                            - Maintain strict objectivity
+                                            - Separate facts from interpretations
+                                            - Highlight evidence strength
+                                            - Note potential biases
+                                            - Identify credibility indicators
+                                            
+                                            SEARCH RESULTS TO ANALYZE:
+                                            ${JSON.stringify(result.results)}
+                                            
+                                            FORMAT:
+                                            Follow the schema exactly, ensuring:
+                                            - Confidence scores are well-calibrated
+                                            - Evidence is clearly cited
+                                            - Biases are explicitly noted
+                                            - Gaps are clearly identified
+                                            
+                                            Note: If no contrasting viewpoints or information gaps are found, provide empty arrays.`
+                                        });
+                                        
+                                        summaries.push({
+                                            query: result.query,
+                                            summary
+                                        });
+
+                                        // Update progress
+                                        dataStream.writeMessageAnnotation({
+                                            type: 'research_update',
+                                            data: {
+                                                id: `summary-${searchResults.indexOf(result)}`,
+                                                type: 'summary',
+                                                status: 'completed',
+                                                title: `Summarized results for "${result.query.query}"`,
+                                                message: `Generated summary with ${summary.query_summary.main_findings.length} key findings`,
+                                                timestamp: Date.now()
+                                            }
+                                        });
+                                    } catch (error) {
+                                        console.error('Error generating summary:', error);
+                                        // Add a fallback summary
+                                        summaries.push({
+                                            query: result.query,
+                                            summary: {
+                                                query_summary: {
+                                                    main_findings: [{
+                                                        finding: "Error generating detailed summary",
+                                                        confidence: 0.5,
+                                                        supporting_sources: [],
+                                                        potential_biases: []
+                                                    }],
+                                                    contrasting_viewpoints: [],
+                                                    information_gaps: [],
+                                                    source_evaluation: {
+                                                        credibility_score: 0.5,
+                                                        diversity_score: 0.5,
+                                                        recency_score: 0.5
+                                                    }
+                                                },
+                                                meta_analysis: {
+                                                    relevance_to_query: 0.5,
+                                                    coverage_breadth: 0.5,
+                                                    key_takeaways: ["Error generating analysis"]
+                                                }
+                                            }
+                                        });
+
+                                        // Update progress with error state
+                                        dataStream.writeMessageAnnotation({
+                                            type: 'research_update',
+                                            data: {
+                                                id: `summary-${searchResults.indexOf(result)}`,
+                                                type: 'summary',
+                                                status: 'completed',
+                                                title: `Error summarizing results for "${result.query.query}"`,
+                                                message: 'Failed to generate detailed summary',
+                                                timestamp: Date.now()
+                                            }
+                                        });
+                                    }
+                                }
+                                return summaries;
+                            };
+
+                            // Generate summaries
+                            const searchSummaries = await summarizeSearchResults(searchResults);
+
+                            // Perform analyses with enhanced context
+                            const analysisResults: AnalysisResult[] = [];
                             for (const step of stepIds.analysisSteps) {
                                 dataStream.writeMessageAnnotation({
                                     type: 'research_update',
@@ -759,8 +1116,11 @@ export async function POST(req: Request) {
                                     }
                                 });
 
-                                const { object: analysisResult } = await generateObject({
-                                    model: xai("grok-beta"),
+                                let analysisResult;
+                                try {
+                                    // Try with deepseek first
+                                    const result = await withRateLimitRetry(async () => generateObject({
+                                    model: groq('deepseek-r1-distill-llama-70b'),
                                     temperature: 0.5,
                                     schema: z.object({
                                         findings: z.array(z.object({
@@ -771,10 +1131,113 @@ export async function POST(req: Request) {
                                         implications: z.array(z.string()),
                                         limitations: z.array(z.string())
                                     }),
-                                    prompt: `Perform a ${step.analysis.type} analysis on the search results. ${step.analysis.description}
-                                            Consider all sources and their reliability.
-                                            Search results: ${JSON.stringify(searchResults)}`
-                                });
+                                        prompt: `Perform a ${step.analysis.type} analysis on the synthesized research results. ${step.analysis.description}
+
+                                        CONTEXT:
+                                        This analysis should focus on ${step.analysis.focus_areas.join(", ")}.
+                                        
+                                        SUMMARIZED FINDINGS:
+                                        ${searchSummaries.map(summary => `
+                                            Query: "${summary.query.query}"
+                                            Main Findings: ${summary.summary.query_summary.main_findings.map(f => 
+                                                `- ${f.finding} (Confidence: ${f.confidence})`
+                                            ).join("\n")}
+                                            Contrasting Views: ${summary.summary.query_summary.contrasting_viewpoints.map(v => 
+                                                `- ${v.viewpoint} (Evidence Strength: ${v.evidence_strength})`
+                                            ).join("\n")}
+                                            Information Gaps: ${summary.summary.query_summary.information_gaps.join(", ")}
+                                        `).join("\n\n")}
+                                        
+                                        ANALYSIS REQUIREMENTS:
+                                        1. Synthesize patterns across all summaries
+                                        2. Identify consensus and disagreements
+                                        3. Evaluate evidence quality
+                                        4. Consider source diversity
+                                        5. Note limitations and gaps
+                                        
+                                        Focus particularly on:
+                                        ${step.analysis.focus_areas.map(area => `- ${area}`).join("\n")}`
+                                    }), 2); // Only try twice with deepseek before falling back
+
+                                    analysisResult = result.object;
+                                    // Store the analysis result
+                                    analysisResults.push({
+                                        type: step.analysis.type,
+                                        findings: analysisResult.findings,
+                                        implications: analysisResult.implications
+                                    });
+                                } catch (error) {
+                                    console.warn('Deepseek analysis failed, falling back to GPT-4:', error);
+                                    
+                                    // Fallback to GPT-4
+                                    try {
+                                        const result = await generateObject({
+                                            model: openai('gpt-4o'),
+                                            temperature: 0.3, // Lower temperature for more focused analysis
+                                            schema: z.object({
+                                                findings: z.array(z.object({
+                                                    insight: z.string(),
+                                                    evidence: z.array(z.string()),
+                                                    confidence: z.number().min(0).max(1)
+                                                })),
+                                                implications: z.array(z.string()),
+                                                limitations: z.array(z.string())
+                                            }),
+                                            prompt: `Perform a ${step.analysis.type} analysis on the synthesized research results. ${step.analysis.description}
+
+                                            CONTEXT:
+                                            This analysis should focus on ${step.analysis.focus_areas.join(", ")}.
+                                            
+                                            SUMMARIZED FINDINGS:
+                                            ${searchSummaries.map(summary => `
+                                                Query: "${summary.query.query}"
+                                                Main Findings: ${summary.summary.query_summary.main_findings.map(f => 
+                                                    `- ${f.finding} (Confidence: ${f.confidence})`
+                                                ).join("\n")}
+                                                Contrasting Views: ${summary.summary.query_summary.contrasting_viewpoints.map(v => 
+                                                    `- ${v.viewpoint} (Evidence Strength: ${v.evidence_strength})`
+                                                ).join("\n")}
+                                                Information Gaps: ${summary.summary.query_summary.information_gaps.join(", ")}
+                                            `).join("\n\n")}
+                                            
+                                            ANALYSIS REQUIREMENTS:
+                                            1. Synthesize patterns across all summaries
+                                            2. Identify consensus and disagreements
+                                            3. Evaluate evidence quality
+                                            4. Consider source diversity
+                                            5. Note limitations and gaps
+                                            
+                                            Focus particularly on:
+                                            ${step.analysis.focus_areas.map(area => `- ${area}`).join("\n")}`
+                                        });
+
+                                        analysisResult = result.object;
+                                        // Store the analysis result
+                                        analysisResults.push({
+                                            type: step.analysis.type,
+                                            findings: analysisResult.findings,
+                                            implications: analysisResult.implications
+                                        });
+                                    } catch (fallbackError) {
+                                        console.error('Both analysis attempts failed:', fallbackError);
+                                        // Provide a minimal valid result
+                                        analysisResult = {
+                                            findings: [{
+                                                insight: "Analysis generation failed",
+                                                evidence: ["Error occurred during analysis"],
+                                                confidence: 0
+                                            }],
+                                            implications: ["Unable to generate implications due to error"],
+                                            limitations: ["Analysis failed to complete"]
+                                        };
+                                        // Store the fallback result
+                                        analysisResults.push({
+                                            type: step.analysis.type,
+                                            findings: analysisResult.findings,
+                                            implications: analysisResult.implications
+                                        });
+                                    }
+                                }
 
                                 dataStream.writeMessageAnnotation({
                                     type: 'research_update',
@@ -790,14 +1253,12 @@ export async function POST(req: Request) {
                                         overwrite: true
                                     }
                                 });
-
-                                analysisIndex++;  // Increment index
                             }
 
                             // Before returning, ensure we mark as complete if response is done
                             completedSteps = searchResults.reduce((acc, search) => {
-                                // Count each search result as a step
-                                return acc + (search.type === 'both' ? 2 : 1);
+                                // Count each search result
+                                return acc + 1;  // Each search is one step
                             }, 0) + researchPlan.required_analyses.length;
 
                             const finalProgress = {
@@ -815,6 +1276,88 @@ export async function POST(req: Request) {
                                 type: 'research_update',
                                 data: {
                                     ...finalProgress,
+                                    overwrite: true
+                                }
+                            });
+
+                            // Before returning the final results, add final summarization
+                            const generateFinalSummary = async (searchSummaries: any[], analysisResults: AnalysisResult[]) => {
+                                try {
+                                    const { object: finalSummary } = await generateObject({
+                                        model: openai('gpt-4o'),
+                                        temperature: 0.1,
+                                        schema: z.object({
+                                            key_findings: z.array(z.object({
+                                                finding: z.string(),
+                                                importance: z.number().min(1).max(5)
+                                            })).min(3).max(5),
+                                            consensus_points: z.array(z.string()).min(1),
+                                            disagreements: z.array(z.string()).default([]),
+                                            practical_implications: z.array(z.string()).min(1).max(3),
+                                            plain_text_summary: z.string().min(100).max(500)
+                                        }),
+                                        prompt: `Create a clear, user-friendly summary of the research findings.
+
+                                        SEARCH SUMMARIES:
+                                        ${searchSummaries.map(summary => `
+                                            Query: "${summary.query.query}"
+                                            Main Findings: ${summary.summary.query_summary.main_findings.map((f: Finding) => 
+                                                `- ${f.finding} (Confidence: ${f.confidence})`
+                                            ).join("\n")}
+                                        `).join("\n\n")}
+
+                                        ANALYSIS RESULTS:
+                                        ${analysisResults.map(analysis => `
+                                            Type: ${analysis.type}
+                                            Findings: ${analysis.findings.map((f: { insight: string; confidence: number }) => 
+                                                `- ${f.insight} (Confidence: ${f.confidence})`
+                                            ).join("\n")}
+                                            Implications: ${analysis.implications.join(", ")}
+                                        `).join("\n\n")}
+
+                                        REQUIREMENTS:
+                                        1. Synthesize the most important findings
+                                        2. Highlight clear consensus points
+                                        3. Note significant disagreements
+                                        4. Provide practical implications
+                                        5. Create a plain-language summary that a general audience can understand
+
+                                        Focus on clarity and actionable insights. The plain_text_summary should be engaging and easy to understand.`
+                                    });
+
+                                    return finalSummary;
+                                } catch (error) {
+                                    console.error('Error generating final summary:', error);
+                                    return {
+                                        key_findings: [{
+                                            finding: "Research completed with mixed results",
+                                            importance: 3
+                                        }],
+                                        consensus_points: ["Analysis completed successfully"],
+                                        disagreements: [],
+                                        practical_implications: ["Further research may be needed"],
+                                        plain_text_summary: "The research has been completed, but there were some challenges in generating a final summary. Please review the detailed findings above."
+                                    };
+                                }
+                            };
+
+                            // Add final summary to the results
+                            const finalSummary = await generateFinalSummary(
+                                searchSummaries, 
+                                analysisResults
+                            );
+
+                            // Send the final summary update
+                            dataStream.writeMessageAnnotation({
+                                type: 'research_update',
+                                data: {
+                                    id: 'final-summary',
+                                    type: 'summary',
+                                    status: 'completed',
+                                    title: 'Research Summary',
+                                    summary: finalSummary,
+                                    message: 'Final summary generated',
+                                    timestamp: Date.now(),
                                     overwrite: true
                                 }
                             });

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Axon - AI-powered Search Engine",
     short_name: "Axon",
-    description: "A minimalistic AI-powered search engine that helps you find information on the internet using advanced AI models like GPT-4, Claude, and Grok",
+    description: "A minimalistic AI-powered search engine that helps you find information on the internet using advanced AI models like GPT-4, Claude, and Deepseek R1",
     start_url: "/",
     display: "standalone",
     categories: ["search", "ai", "productivity"],

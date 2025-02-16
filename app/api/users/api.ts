@@ -1,3 +1,5 @@
+
+
 export async function updateUserPreferences(userId, newPreferences) {
     const { error } = await supabase
         .from('user_preferences')
