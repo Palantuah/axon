@@ -167,14 +167,15 @@ export function MantraAuthForm({ className }: AuthFormProps) {
                                             filter: 'blur(8px)',
                                         }}
                                     />
-                                    <span className="relative z-10 text-lg font-semibold">
+                                    <span className="relative z-10 text-md font-semibold">
                                         {isLoading ? 'Logging in...' : 'Log in'}
                                     </span>
                                 </Button>
                                 <Button
                                     formAction={handleSignup}
-                                    className="relative group w-full h-11 bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-violet-500/20 hover:from-violet-500 hover:via-blue-500 hover:to-violet-500 text-white transition-all duration-200 backdrop-blur-sm"
+                                    className="relative group w-full h-11 bg-gradient-to-r from-violet-500/5 via-blue-500/5 to-violet-500/5 hover:from-violet-500 hover:via-blue-500 hover:to-violet-500 transition-all duration-200 backdrop-blur-sm"
                                     disabled={isLoading}
+                                    variant="inverted"
                                 >
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-violet-500/20 opacity-0 group-hover:opacity-100 transition duration-500 rounded-md"
