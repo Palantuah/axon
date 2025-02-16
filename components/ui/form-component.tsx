@@ -60,8 +60,8 @@ const models = [
         description: "OpenAI's O3 Mini High model",
         color: 'glossyblack',
         vision: false,
-        experimental: false,
-        category: 'Stable',
+        experimental: true,
+        category: 'Experimental',
     },
     {
         value: 'axon-4o',
@@ -93,8 +93,8 @@ const models = [
         description: 'DeepSeek R1 model by Groq',
         color: 'sapphire',
         vision: false,
-        experimental: true,
-        category: 'Experimental',
+        experimental: false,
+        category: 'Stable',
     },
     
 ];

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ScrollProgress } from '@/components/news/scroll-progress';
 import { FormattedNewsletter } from '@/components/newsletter/formatted-newsletter';
 import { parseNewsletterText } from '@/lib/newsletter-utils';
@@ -30,45 +30,7 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
     const [supabaseRow, setSupabaseRow] = useState<UserDigest | null>(null);
     const supabase = createClient();
 
-    // Function to fetch digest by ID or most recent
-    const fetchDigest = async (id?: string) => {
-        try {
-            setIsLoading(true);
-            const { data: userData, error: userError } = await supabase.auth.getUser();
-            if (userError) throw userError;
-
-            let query = supabase
-                .from('user_digests')
-                .select('*')
-                .eq('user_id', userData.user.id);
-
-            if (id) {
-                query = query.eq('id', id);
-            } else {
-                query = query.order('updated_at', { ascending: false }).limit(1);
-            }
-
-            const { data: digest, error: digestError } = await query.single();
-
-            if (digestError) throw digestError;
-
-            if (digest) {
-                setSupabaseRow(digest);
-                setOriginalContent(digest.combined_analysis);
-                if (digest.formatted_content) {
-                    setFormattedContent(digest.formatted_content);
-                    toast.info('Using previously formatted content');
-                } else if (digest.combined_analysis) {
-                    await formatContent(digest.combined_analysis, digest.id);
-                }
-            }
-        } catch (err) {
-            console.error('Error fetching digest:', err);
-            setError('Failed to fetch digest');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const fetchDigest = useCallback(async (id?: string) => {
 
     const formatContent = async (content: string, id?: string) => {
         if (formattedContent) {
@@ -92,6 +54,8 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
             }
 
             if (data.formattedContent) {
+                // Update local state first
+                console.log(data.formatted_content);
                 setFormattedContent(data.formattedContent);
                 const update_cell = data.formattedContent;
 
@@ -101,6 +65,7 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
                     return;
                 }
 
+                // Update database
                 const { error: supabaseError } = await supabase
                     .from('user_digests')
                     .update({ 
@@ -115,6 +80,8 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
                     toast.error('Newsletter formatted but failed to save to database');
                 } else {
                     toast.success('Newsletter formatted and saved successfully');
+                    // Force a re-fetch to ensure UI is in sync with database
+                    await fetchDigest(id);
                 }
             } else {
                 throw new Error('No formatted content received');
@@ -122,14 +89,53 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
         } catch (err) {
             console.error('Error formatting newsletter:', err);
             setError('Failed to format newsletter. Please try again.');
+            // Reset formatted content on error
+            setFormattedContent(null);
         } finally {
             setIsFormatting(false);
         }
     };
+        try {
+            setIsLoading(true);
+            const { data: userData, error: userError } = await supabase.auth.getUser();
+            if (userError) throw userError;
+            let query = supabase
+                .from('user_digests')
+                .select('*')
+                .eq('user_id', userData.user.id);
+
+            if (id) {
+                query = query.eq('id', id);
+            } else {
+                query = query.order('updated_at', { ascending: false }).limit(1);
+            }
+
+            const { data: digest, error: digestError } = await query.single();
+
+            if (digestError) throw digestError;
+
+            if (digest) {
+                setSupabaseRow(digest);
+                setOriginalContent(digest.combined_analysis);
+                if (digest.formatted_content) {
+                    console.log(digest.formatted_content)
+                    setFormattedContent(digest.formatted_content);
+                    toast.info('Using previously formatted content');
+                } else if (digest.combined_analysis) {
+                    await formatContent(digest.combined_analysis, digest.id);
+                }
+            }
+        } catch (err) {
+            setError('Failed to fetch digest');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [supabase, formattedContent]);
+
 
     useEffect(() => {
         fetchDigest(digestId);
-    }, [digestId]);
+    }, [digestId, fetchDigest]);
 
     if (isLoading) {
         return (
@@ -169,8 +175,8 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
         <div className="min-h-screen w-full bg-black">
             <ScrollProgress />
 
-            <div className="fixed top-0 left-0 w-full bg-black/50 backdrop-blur-md z-40 border-b border-white/10">
-                <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="fixed top-0 left-64 right-0 bg-black/50 backdrop-blur-md z-40 border-b border-white/10">
+                <div className="px-4 py-6">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -178,30 +184,6 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
                     >
                         Newsletter
                     </motion.h1>
-
-                    <div className="mt-4 flex items-center gap-2">
-                        <button
-                            onClick={() => formatContent(originalContent!, supabaseRow?.id)}
-                            disabled={isFormatting || formattedContent !== null}
-                            className="px-3 py-1.5 text-sm font-medium text-white/70 hover:text-white 
-                            bg-white/5 hover:bg-white/10 rounded-md transition-colors
-                            disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {formattedContent ? 'Already Formatted' : 'Format with AI'}
-                        </button>
-                        {formattedContent && (
-                            <button
-                                onClick={() => {
-                                    setFormattedContent(null);
-                                    setError(null);
-                                }}
-                                className="px-3 py-1.5 text-sm font-medium text-white/70 hover:text-white 
-                                bg-white/5 hover:bg-white/10 rounded-md transition-colors"
-                            >
-                                Reset to Original
-                            </button>
-                        )}
-                    </div>
 
                     {error && (
                         <div className="mt-4 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-md">

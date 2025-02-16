@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ hasSubmitted }: { hasSubmitted: 
                     </motion.div>
                 </Link>
 
-                <Link href="/new">
+                <Link href="" onClick={() => window.location.reload()}>
                     <Button
                         type="button"
                         variant="ghost"

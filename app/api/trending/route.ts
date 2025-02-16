@@ -1,8 +1,5 @@
-import { xai } from '@ai-sdk/xai';
-import { generateObject } from 'ai';
+
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import { openai } from '@ai-sdk/openai';
 
 export interface TrendingQuery {
     icon: string;
@@ -10,163 +7,42 @@ export interface TrendingQuery {
     category: string;
 }
 
-interface RedditPost {
-    data: {
-        title: string;
-    };
-}
-
-async function fetchGoogleTrends(): Promise<TrendingQuery[]> {
-    const fetchTrends = async (geo: string): Promise<TrendingQuery[]> => {
-        try {
-            const response = await fetch(`https://trends.google.com/trends/trendingsearches/daily/rss?geo=${geo}`, {
-                headers: {
-                    'User-Agent':
-                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch from Google Trends RSS for geo: ${geo}`);
-            }
-
-            const xmlText = await response.text();
-            const items = xmlText.match(/<title>(?!Daily Search Trends)(.*?)<\/title>/g) || [];
-
-            const categories = [
-                'trending',
-                'community',
-                'science',
-                'tech',
-                'travel',
-                'politics',
-                'health',
-                'sports',
-                'finance',
-                'football',
-            ] as const;
-
-            const schema = z.object({
-                category: z.enum(categories),
-            });
-
-            const itemsWithCategoryAndIcon = await Promise.all(
-                items.map(async (item) => {
-                    const { object } = await generateObject({
-                        model: openai('gpt-4o'),
-                        prompt: `Give the category for the topic from the existing values only in lowercase only: ${item.replace(
-                            /<\/?title>/g,
-                            '',
-                        )}
-
-          - if the topic category isn't present in the list, please select 'trending' only!`,
-                        schema,
-                        temperature: 0,
-                    });
-
-                    return {
-                        icon: object.category,
-                        text: item.replace(/<\/?title>/g, ''),
-                        category: object.category,
-                    };
-                }),
-            );
-
-            return itemsWithCategoryAndIcon;
-        } catch (error) {
-            console.error(`Failed to fetch Google Trends for geo: ${geo}`, error);
-            return [];
-        }
-    };
-
-    const trends = await fetchTrends('US');
-
-    return [...trends];
-}
-
-async function fetchRedditQuestions(): Promise<TrendingQuery[]> {
-    try {
-        const response = await fetch('https://www.reddit.com/r/askreddit/hot.json?limit=100', {
-            headers: {
-                'User-Agent': 'Axon/1.0',
-            },
-        });
-
-        const data = await response.json();
-        const maxLength = 50;
-
-        return data.data.children
-            .map((post: RedditPost) => ({
-                icon: 'question',
-                text: post.data.title,
-                category: 'community',
-            }))
-            .filter((query: TrendingQuery) => query.text.length <= maxLength)
-            .slice(0, 15);
-    } catch (error) {
-        console.error('Failed to fetch Reddit questions:', error);
-        return [];
-    }
-}
-
-async function fetchFromMultipleSources() {
-    const [
-        googleTrends,
-        // redditQuestions
-    ] = await Promise.all([
-        fetchGoogleTrends(),
-        // fetchRedditQuestions(),
-    ]);
-
-    const allQueries = [
-        ...googleTrends,
-        // ...redditQuestions
-    ];
-    return allQueries.sort(() => Math.random() - 0.5);
-}
 
 export async function GET(req: Request) {
     try {
-        const trends = await fetchFromMultipleSources();
-
-        if (trends.length === 0) {
-            // Fallback queries if both sources fail
-            console.error('Both sources failed to fetch trends, returning fallback queries');
-            return NextResponse.json([
-                {
-                    icon: 'sparkles',
-                    text: 'Global Climate Agreement Reached',
-                    category: 'politics',
-                },
-                {
-                    icon: 'code',
-                    text: 'New AI Model Breaks Records',
-                    category: 'tech',
-                },
-                {
-                    icon: 'globe',
-                    text: 'Stock Markets Hit All-Time High',
-                    category: 'finance',
-                },
-                {
-                    icon: 'sparkles',
-                    text: 'Major Sports Championship Results',
-                    category: 'sports',
-                },
-                {
-                    icon: 'globe',
-                    text: 'Breakthrough in Cancer Research',
-                    category: 'health',
-                },
-                {
-                    icon: 'code',
-                    text: 'Space Mission Makes New Discovery',
-                    category: 'science',
-                },
-            ]);
-        }
-
-        return NextResponse.json(trends);
+        // Removed fetching logic, directly return fallback queries
+        return NextResponse.json([
+            {
+                icon: 'sparkles',
+                text: 'Global Climate Agreement Reached',
+                category: 'politics',
+            },
+            {
+                icon: 'code',
+                text: 'New AI Model Breaks Records',
+                category: 'tech',
+            },
+            {
+                icon: 'globe',
+                text: 'Stock Markets Hit All-Time High',
+                category: 'finance',
+            },
+            {
+                icon: 'sparkles',
+                text: 'Major Sports Championship Results',
+                category: 'sports',
+            },
+            {
+                icon: 'globe',
+                text: 'Breakthrough in Cancer Research',
+                category: 'health',
+            },
+            {
+                icon: 'code',
+                text: 'Space Mission Makes New Discovery',
+                category: 'science',
+            },
+        ]);
     } catch (error) {
         console.error('Failed to fetch trends:', error);
         return NextResponse.error();
