@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FormattedNewsletter } from '@/components/newsletter/formatted-newsletter';
 import { parseNewsletterText } from '@/lib/newsletter-utils';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { PodcastPlayer } from '@/components/newsletter/podcast-player';
+import { sendNewsletterEmail } from '@/lib/email-utils';
 
 interface UserDigest {
     id: string;
@@ -23,6 +24,7 @@ interface NewsletterContentProps {
 
 export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
     const [isFormatting, setIsFormatting] = useState(false);
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [formattedContent, setFormattedContent] = useState<string | null>(null);
     const [originalContent, setOriginalContent] = useState<string | null>(null);
@@ -91,7 +93,6 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
 
             if (data.formattedContent) {
                 // Update local state first
-                console.log(data.formatted_content);
                 setFormattedContent(data.formattedContent);
                 const update_cell = data.formattedContent;
 
@@ -116,6 +117,20 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
                     toast.error('Newsletter formatted but failed to save to database');
                 } else {
                     toast.success('Newsletter formatted and saved successfully');
+                    
+                    // Send email
+                    try {
+                        setIsSendingEmail(true);
+                        await sendNewsletterEmail(update_cell);
+                        console.log('Newsletter sent to your email');
+                        toast.success('Newsletter sent to your email');
+                    } catch (emailError) {
+                        console.error('Error sending email:', emailError);
+                        toast.error('Failed to send newsletter email');
+                    } finally {
+                        setIsSendingEmail(false);
+                    }
+                    
                     // Force a re-fetch to ensure UI is in sync with database
                     await fetchDigest(id);
                 }
@@ -147,12 +162,14 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
         );
     }
 
-    if (isFormatting) {
+    if (isFormatting || isSendingEmail) {
         return (
             <div className="min-h-screen w-full bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    <p className="text-muted-foreground">Formatting newsletter with AI...</p>
+                    <p className="text-muted-foreground">
+                        {isFormatting ? 'Formatting newsletter with AI...' : 'Sending newsletter to your email...'}
+                    </p>
                 </div>
             </div>
         );

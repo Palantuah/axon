@@ -5,8 +5,17 @@ import { NextResponse } from 'next/server';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    const { content } = await request.json();
+    
+    if (!content) {
+      return NextResponse.json(
+        { error: 'Newsletter content is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -18,10 +27,10 @@ export async function POST() {
     }
 
     const { data, error: emailError } = await resend.emails.send({
-      from: 'Axon AI <palantuah@gmail.com>',
+      from: 'Axon AI <palantuah@meetmantra.ai>',
       to: [user.email],
-      subject: 'Welcome to Axon!',
-      react: EmailTemplate({ username: user.email.split('@')[0] }) as React.ReactElement,
+      subject: 'Your Axon AI Newsletter',
+      react: EmailTemplate({ content }) as React.ReactElement,
     });
 
     if (emailError) {
@@ -32,10 +41,11 @@ export async function POST() {
     }
 
     return NextResponse.json(
-      { message: 'Email sent successfully', data },
+      { message: 'Newsletter sent successfully', data },
       { status: 200 }
     );
   } catch (error) {
+    console.error('Error sending newsletter:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
