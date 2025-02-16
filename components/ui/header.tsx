@@ -15,7 +15,7 @@ import { signOut } from '@/app/login/actions';
 const navItems = [
     { href: '/features', label: 'Features' },
     { href: '/pricing', label: 'Pricing' },
-    { href: '/blog', label: 'Blog' },
+    { href: '/dashboard', label: 'Dashboard' },
 ];
 
 const fadeInVariants = {
