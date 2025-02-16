@@ -40,7 +40,8 @@ export const SelectedItemsSidebar = ({ onAnalyzeItem, onAnalyzeAll, onSendToChat
     const handleSendToChat = () => {
         if (onSendToChat && selectedItems.length > 0) {
             const combinedText = selectedItems.map((item, index) => {
-                const cleanedContent = formatContent(`${item.title}\n\n${item.content}`);
+                const cleanedContent = formatContent(`${item.title}\n\n${item.content}`)
+                    .replace(/\*\*/g, ''); // Remove all asterisks
                 return `Article ${index + 1}:\n${cleanedContent}`;
             }).join('\n\n');
             onSendToChat(combinedText);
