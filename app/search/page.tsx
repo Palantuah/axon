@@ -304,8 +304,8 @@ const HomeContent = () => {
                 >
                     {!hasSubmitted && (
                         <div className="text-center !font-sans">
-                            <h1 className="text-2xl sm:text-4xl mb-6 text-neutral-800 dark:text-neutral-100 ">
-                                Discover insights through rigorous analysis
+                            <h1 className="text-2xl sm:text-4xl mb-6 text-neutral-800 dark:text-neutral-100 font-syne">
+                                Uncover truth in all dimensions
                             </h1>
                         </div>
                     )}
