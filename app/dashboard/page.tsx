@@ -1,59 +1,97 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
-import { getPreferences } from '../api/main/actions';
+import { createClient } from '@/utils/supabase/client';
+import { getPreferences, updatePreferences } from '../api/main/actions';
+export default function DashBoard() {
+    const supabase = createClient();
+    const [preferences, setPreferences] = useState([]);
+    const [selectedPreferences, setSelectedPreferences] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-export default async function DashBoard() {
-    const supabase = await createClient();
+    // Available topic preferences (example categories)
+    const availablePreferences = ['Technology', 'Music', 'Space', 'Health', 'Finance', 'Gaming'];
 
-    const { data } = await supabase.auth.getUser();
-    if (!data?.user) {
-        redirect('/login');
-    }
-    // need to pull data on preferences
-    const preferences = await getPreferences();
-    console.log(preferences);
-    // Sample data for user podcasts
-    const podcasts = [
-        { title: 'Tech Talks', description: 'Latest in technology' },
-        { title: 'Music Vibes', description: 'The best new tracks' },
-        { title: 'Space Explorers', description: 'Conversations about space' },
-    ];
+    useEffect(() => {
+        async function fetchPreferences() {
+            const user = await supabase.auth.getUser();
+            if (!user?.data?.user) {
+                redirect('/login');
+            }
+
+            const data = await getPreferences();
+            setPreferences(data || []);
+            setSelectedPreferences(data || []);
+            setLoading(false);
+        }
+
+        fetchPreferences();
+    }, []);
+
+    const handlePreferenceChange = (topic) => {
+        setSelectedPreferences(
+            (prev) =>
+                prev.includes(topic)
+                    ? prev.filter((pref) => pref !== topic) // Remove if already selected
+                    : [...prev, topic], // Add if not selected
+        );
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setLoading(true);
+        const result = await updatePreferences(selectedPreferences);
+        if (result.success) {
+            setPreferences(selectedPreferences);
+        }
+        setLoading(false);
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="max-w-7xl mx-auto px-4 py-8">
-                <h1 className="text-3xl font-semibold text-gray-800 mb-4">Welcome, {data.user.email}</h1>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="p-6 bg-white rounded-lg shadow-md">
-                        <h2 className="text-xl font-semibold text-gray-700">Your Podcasts</h2>
-                        <ul className="mt-4 space-y-4">
-                            {podcasts.map((podcast, index) => (
-                                <li key={index} className="p-4 bg-gray-50 rounded-lg shadow-sm">
-                                    <h3 className="font-semibold text-gray-800">{podcast.title}</h3>
-                                    <p className="text-sm text-gray-600">{podcast.description}</p>
+                <h1 className="text-3xl font-semibold text-gray-800 mb-4">Welcome to Your Dashboard</h1>
+
+                {/* Preferences Form */}
+                <div className="p-6 bg-white rounded-lg shadow-md">
+                    <h2 className="text-xl font-semibold text-gray-700">Select Your Preferences</h2>
+                    <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                        {availablePreferences.map((topic) => (
+                            <label key={topic} className="flex items-center space-x-3">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedPreferences.includes(topic)}
+                                    onChange={() => handlePreferenceChange(topic)}
+                                    className="h-5 w-5 text-blue-600"
+                                />
+                                <span className="text-gray-700">{topic}</span>
+                            </label>
+                        ))}
+                        <button
+                            type="submit"
+                            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg"
+                            disabled={loading}
+                        >
+                            {loading ? 'Saving...' : 'Save Preferences'}
+                        </button>
+                    </form>
+                </div>
+
+                {/* Display Selected Preferences */}
+                <div className="p-6 bg-white rounded-lg shadow-md mt-6">
+                    <h2 className="text-xl font-semibold text-gray-700">Your Selected Preferences</h2>
+                    <ul className="mt-4 space-y-2">
+                        {preferences.length > 0 ? (
+                            preferences.map((pref, index) => (
+                                <li key={index} className="text-gray-600">
+                                    {pref}
                                 </li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="p-6 bg-white rounded-lg shadow-md">
-                        <h2 className="text-xl font-semibold text-gray-700">Account Settings</h2>
-                        <ul className="mt-4 space-y-4">
-                            <li className="text-gray-600">Change Email</li>
-                            <li className="text-gray-600">Update Password</li>
-                            <li className="text-gray-600">Delete Account</li>
-                        </ul>
-                    </div>
-                    <div className="p-6 bg-white rounded-lg shadow-md">
-                        <h2 className="text-xl font-semibold text-gray-700">Other User Data</h2>
-                        <ul className="mt-4 space-y-4">
-                            <li className="text-gray-600">
-                                Account created: {new Date(data.user.created_at).toLocaleDateString()}
-                            </li>
-                            <li className="text-gray-600">
-                                Last login: {new Date(data.user.last_sign_in_at).toLocaleDateString()}
-                            </li>
-                        </ul>
-                    </div>
+                            ))
+                        ) : (
+                            <li className="text-gray-400">No preferences selected</li>
+                        )}
+                    </ul>
                 </div>
             </div>
         </div>
