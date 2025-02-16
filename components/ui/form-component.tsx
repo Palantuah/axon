@@ -4,9 +4,9 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatRequestOptions, CreateMessage, Message } from 'ai';
 import { toast } from 'sonner';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from './hover-card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import useWindowSize from '@/hooks/use-window-size';
 import { X } from 'lucide-react';
 import {

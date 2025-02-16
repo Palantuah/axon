@@ -14,7 +14,7 @@ import { ThemeToggle } from './theme-toggle';
 import { redirect } from 'next/navigation';
 const navItems = [
     { href: '/features', label: 'Features' },
-    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/search', label: 'Search' },
 ];
 
 export function Header() {
