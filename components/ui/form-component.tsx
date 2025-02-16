@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 // /components/ui/form-component.tsx
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatRequestOptions, CreateMessage, Message } from 'ai';
+import { UIMessage } from '@ai-sdk/ui-utils';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +27,7 @@ interface ModelSwitcherProps {
     className?: string;
     showExperimentalModels: boolean;
     attachments: Array<Attachment>;
-    messages: Array<Message>;
+    messages: Array<UIMessage>;
 }
 
 const OpenAIIcon = ({ className }: { className?: string }) => (
@@ -463,7 +464,7 @@ interface FormComponentProps {
     fileInputRef: React.RefObject<HTMLInputElement>;
     inputRef: React.RefObject<HTMLTextAreaElement>;
     stop: () => void;
-    messages: Array<Message>;
+    messages: Array<UIMessage>;
     append: (
         message: Message | CreateMessage,
         chatRequestOptions?: ChatRequestOptions,
@@ -491,9 +492,9 @@ interface ToolbarButtonProps {
 const ToolbarButton = ({ group, isSelected, onClick }: ToolbarButtonProps) => {
     const Icon = group.icon;
     const { width } = useWindowSize();
-    const isMobile = width ? width < 768 : false;
+    const isMobile = useMemo(() => (width ? width < 768 : false), [width]);
 
-    const commonClassNames = cn(
+    const commonClassNames = useMemo(() => cn(
         'relative flex items-center justify-center',
         'size-8',
         'rounded-full',
@@ -501,15 +502,14 @@ const ToolbarButton = ({ group, isSelected, onClick }: ToolbarButtonProps) => {
         isSelected
             ? 'bg-neutral-500 dark:bg-neutral-600 text-white dark:text-neutral-300'
             : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/80',
-    );
+    ), [isSelected]);
 
-    const handleClick = (e: React.MouseEvent) => {
+    const handleClick = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         onClick();
-    };
+    }, [onClick]);
 
-    // Use regular button for mobile
     if (isMobile) {
         return (
             <button
@@ -522,21 +522,18 @@ const ToolbarButton = ({ group, isSelected, onClick }: ToolbarButtonProps) => {
         );
     }
 
-    // Use motion.button for desktop
-    const button = (
-        <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleClick}
-            className={commonClassNames}
-        >
-            <Icon className="size-4" />
-        </motion.button>
-    );
-
     return (
-        <HoverCard openDelay={100} closeDelay={50}>
-            <HoverCardTrigger asChild>{button}</HoverCardTrigger>
+        <HoverCard>
+            <HoverCardTrigger asChild>
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleClick}
+                    className={commonClassNames}
+                >
+                    <Icon className="size-4" />
+                </motion.button>
+            </HoverCardTrigger>
             <HoverCardContent
                 side="bottom"
                 align="center"
@@ -549,17 +546,35 @@ const ToolbarButton = ({ group, isSelected, onClick }: ToolbarButtonProps) => {
                     'transition-opacity duration-300',
                 )}
             >
-                <div className="space-y-0.5">
-                    <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{group.name}</h4>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-normal">{group.description}</p>
+                <div className="flex flex-col gap-1">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                        {group.name}
+                    </p>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                        {group.description}
+                    </p>
                 </div>
             </HoverCardContent>
         </HoverCard>
     );
 };
 
-const SelectionContent = ({ ...props }) => {
+const SelectionContent = ({ selectedGroup, onGroupSelect }: { selectedGroup: SearchGroupId; onGroupSelect: (group: SearchGroup) => void }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+
+    const handleMouseEnter = useCallback(() => {
+        setIsExpanded(true);
+    }, []);
+
+    const handleMouseLeave = useCallback(() => {
+        setIsExpanded(false);
+    }, []);
+
+    const containerStyle = useMemo(() => ({
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    }), []);
 
     return (
         <motion.div
@@ -574,11 +589,7 @@ const SelectionContent = ({ ...props }) => {
                 duration: 0.2,
                 ease: 'easeInOut',
             }}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-            }}
+            style={containerStyle}
             className={cn(
                 'inline-flex items-center',
                 'min-w-[38px]',
@@ -588,20 +599,19 @@ const SelectionContent = ({ ...props }) => {
                 'shadow-sm overflow-visible',
                 'relative z-10',
             )}
-            onMouseEnter={() => setIsExpanded(true)}
-            onMouseLeave={() => setIsExpanded(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
-            <AnimatePresence initial={false}>
-                {searchGroups.map((group, index) => {
-                    const showItem = isExpanded || props.selectedGroup === group.id;
-                    return (
+            <AnimatePresence mode="wait" initial={false}>
+                {searchGroups.map((group) => {
+                    const showItem = isExpanded || selectedGroup === group.id;
+                    return showItem ? (
                         <motion.div
                             key={group.id}
                             layout={false}
-                            animate={{
-                                width: showItem ? '28px' : 0,
-                                opacity: showItem ? 1 : 0,
-                            }}
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: '28px', opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
                             transition={{
                                 duration: 0.15,
                                 ease: 'easeInOut',
@@ -610,11 +620,11 @@ const SelectionContent = ({ ...props }) => {
                         >
                             <ToolbarButton
                                 group={group}
-                                isSelected={props.selectedGroup === group.id}
-                                onClick={() => props.onGroupSelect(group)}
+                                isSelected={selectedGroup === group.id}
+                                onClick={() => onGroupSelect(group)}
                             />
                         </motion.div>
-                    );
+                    ) : null;
                 })}
             </AnimatePresence>
         </motion.div>
@@ -622,7 +632,11 @@ const SelectionContent = ({ ...props }) => {
 };
 
 const GroupSelector = ({ selectedGroup, onGroupSelect }: GroupSelectorProps) => {
-    return <SelectionContent selectedGroup={selectedGroup} onGroupSelect={onGroupSelect} />;
+    const memoizedOnGroupSelect = useCallback((group: SearchGroup) => {
+        onGroupSelect(group);
+    }, [onGroupSelect]);
+
+    return <SelectionContent selectedGroup={selectedGroup} onGroupSelect={memoizedOnGroupSelect} />;
 };
 
 const FormComponent: React.FC<FormComponentProps> = ({
@@ -691,7 +705,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
         [setSelectedGroup, resetSuggestedQuestions, inputRef],
     );
 
-    const uploadFile = async (file: File): Promise<Attachment> => {
+    const uploadFile = useCallback(async (file: File): Promise<Attachment> => {
         const formData = new FormData();
         formData.append('file', file);
 
@@ -712,7 +726,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
             toast.error('Failed to upload file, please try again!');
             throw error;
         }
-    };
+    }, []);
 
     const handleFileChange = useCallback(
         async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -738,7 +752,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
                 event.target.value = '';
             }
         },
-        [attachments, setAttachments],
+        [attachments, setAttachments, uploadFile],
     );
 
     const removeAttachment = (index: number) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/utils/supabase/client';
 import { getPreferences, updatePreferences } from '@/app/api/main/actions';
@@ -17,7 +17,7 @@ import { Settings, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function PreferencesModal() {
-    const supabase = createClient();
+    const supabase = useMemo(() => createClient(), []);
     const [preferences, setPreferences] = useState<string[]>([]);
     const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
@@ -34,18 +34,33 @@ export function PreferencesModal() {
     ];
 
     useEffect(() => {
-        async function fetchData() {
-            const user = await supabase.auth.getUser();
-            if (!user?.data?.user) return;
+        let isMounted = true;
 
-            const data = await getPreferences();
-            setPreferences(data || []);
-            setSelectedPreferences(data || []);
-            setLoading(false);
+        async function fetchData() {
+            try {
+                const user = await supabase.auth.getUser();
+                if (!user?.data?.user || !isMounted) return;
+
+                const data = await getPreferences();
+                if (isMounted) {
+                    setPreferences(data || []);
+                    setSelectedPreferences(data || []);
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('Error fetching preferences:', error);
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
         }
 
         fetchData();
-    }, []);
+
+        return () => {
+            isMounted = false;
+        };
+    }, [supabase]);
 
     const handlePreferenceChange = (topic: string) => {
         setSelectedPreferences((prev) => {

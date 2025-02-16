@@ -36,7 +36,7 @@ const HomeContent = () => {
             query: query || q,
             model: model,
         }),
-        [],
+        [model, q, query],
     );
 
     const lastSubmittedQueryRef = useRef(initialState.query);
@@ -60,7 +60,7 @@ const HomeContent = () => {
         timestamp: number;
     }
 
-    const getTrendingQueriesFromCache = (): TrendingQueriesCache | null => {
+    const getTrendingQueriesFromCache = useCallback((): TrendingQueriesCache | null => {
         if (typeof window === 'undefined') return null;
 
         const cached = localStorage.getItem(CACHE_KEY);
@@ -75,7 +75,7 @@ const HomeContent = () => {
         }
 
         return parsedCache;
-    };
+    }, [CACHE_DURATION]);
 
     useEffect(() => {
         console.log('selectedModel', selectedModel);
@@ -154,7 +154,7 @@ const HomeContent = () => {
         };
 
         fetchTrending();
-    }, []);
+    }, [getTrendingQueriesFromCache]);
 
     const lastUserMessageIndex = useMemo(() => {
         for (let i = messages.length - 1; i >= 0; i--) {
@@ -177,7 +177,7 @@ const HomeContent = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [messages, suggestedQuestions]);
 
-    const handleExampleClick = async (card: TrendingQuery) => {
+    const handleExampleClick = useCallback(async (card: TrendingQuery) => {
         const exampleText = card.text;
         lastSubmittedQueryRef.current = exampleText;
         setHasSubmitted(true);
@@ -186,7 +186,14 @@ const HomeContent = () => {
             content: exampleText.trim(),
             role: 'user',
         });
-    };
+    }, [append, setHasSubmitted, setSuggestedQuestions]);
+
+    const trendingCards = useMemo(() => {
+        return trendingQueries.map((card) => ({
+            ...card,
+            onClick: () => handleExampleClick(card),
+        }));
+    }, [trendingQueries, handleExampleClick]);
 
     const handleSuggestedQuestionClick = useCallback(
         async (question: string) => {
@@ -280,7 +287,7 @@ const HomeContent = () => {
 
     const memoizedSuggestionCards = useMemo(
         () => <SuggestionCards trendingQueries={trendingQueries} handleExampleClick={handleExampleClick} />,
-        [trendingQueries],
+        [trendingQueries, handleExampleClick],
     );
 
     return (
