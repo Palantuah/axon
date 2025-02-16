@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 
 import { createClient } from '@/utils/supabase/server';
 import { getURL } from '@/utils/helpers';
@@ -20,11 +20,10 @@ export async function login(formData: FormData) {
 
     if (error) {
         console.log(error);
-        redirect('/error');
+        throw new Error(error.message);
     }
 
     revalidatePath('/', 'layout');
-    redirect('/');
 }
 
 export async function signup(formData: FormData) {
@@ -41,39 +40,43 @@ export async function signup(formData: FormData) {
 
     if (error) {
         console.log(error);
-        redirect('/error');
+        throw new Error(error.message);
     }
 
     revalidatePath('/', 'layout');
-    redirect('/');
 }
+
 export async function signOut() {
     const supabase = await createClient();
     const { error } = await supabase.auth.signOut();
 
     if (error) {
         console.log(error);
-        redirect('/error');
+        throw new Error(error.message);
     }
 
     revalidatePath('/', 'layout');
-    redirect('/');
 }
 
 export async function oauthSignIn() {
     const supabase = await createClient();
     const redirectUrl = getURL('/auth/callback');
-    const { error } = await supabase.auth.signInWithOAuth({
+    
+    const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
             redirectTo: redirectUrl,
+            queryParams: {
+                access_type: 'offline',
+                prompt: 'consent',
+            },
         },
     });
 
     if (error) {
-        console.log(error);
-        redirect('/error');
+        throw new Error(error.message);
     }
-    revalidatePath('/', 'layout');
-    redirect('/');
+
+    // No need to revalidate here as OAuth will handle the redirect
+    return data;
 }

@@ -11,10 +11,9 @@ import { Sheet, SheetContent, SheetTrigger } from './sheet';
 import { createClient } from '@/utils/supabase/client';
 import { signOut } from '@/app/login/actions';
 import { ThemeToggle } from './theme-toggle';
-
+import { redirect } from 'next/navigation';
 const navItems = [
     { href: '/features', label: 'Features' },
-    { href: '/pricing', label: 'Pricing' },
     { href: '/dashboard', label: 'Dashboard' },
 ];
 
@@ -60,12 +59,12 @@ export function Header() {
             <motion.div
                 className={cn(
                     'relative backdrop-blur-[20px]',
-                    'border border-white/[0.08]',
+                    'border border-foreground/[0.08]',
                     'w-full transition-all duration-300 ease-in-out',
                     'flex items-center justify-between',
                     'px-4 py-2',
                     roundedClass,
-                    isScrolled ? 'max-w-[600px] bg-black/40' : 'max-w-full bg-black/10'
+                    isScrolled ? 'max-w-[600px] bg-background/40' : 'max-w-full bg-background/10'
                 )}
             >
                 {/* Logo */}
@@ -121,7 +120,10 @@ export function Header() {
                                     'transition-all duration-300',
                                     roundedClass
                                 )}
-                                formAction={signOut}
+                                formAction={async () => {
+                                    await signOut();
+                                    redirect('/');
+                                }}
                             >
                                 Sign Out
                             </Button>
@@ -168,7 +170,7 @@ export function Header() {
                                 <span className="sr-only">Toggle menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="w-80 bg-black/95 border-white/[0.08] backdrop-blur-2xl">
+                        <SheetContent side="right" className="w-80 bg-background/95 border-foreground/[0.08] backdrop-blur-2xl">
                             <nav className="flex flex-col gap-4 mt-8">
                                 {navItems.map((item) => (
                                     <Link
