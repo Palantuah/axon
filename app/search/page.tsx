@@ -4,18 +4,20 @@ import 'katex/dist/katex.min.css';
 
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { SearchGroupId } from '@/lib/utils';
+import { TrendingQuery } from '@/lib/types';
 import { useChat, UseChatOptions } from '@ai-sdk/react'
 import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { suggestQuestions } from '@/app/actions';
-import { TrendingQuery } from '@/app/api/trending/route';
 import FormComponent from '@/components/ui/form-component';
 import { Navbar } from '@/components/search/molecules/navbar';
 import { SuggestionCards } from '@/components/search/molecules/suggestion-cards';
 import { MessageList } from '@/components/search/molecules/message-list';
+import { SelectedItemsSidebar } from '@/components/search/molecules/selected-items-sidebar';
 import { toast } from 'sonner';
 import { GradientBackground } from '@/components/search/molecules/gradient';
+import { cn } from '@/lib/utils';
 
 export const maxDuration = 120;
 
@@ -25,6 +27,39 @@ interface Attachment {
     url: string;
     size: number;
 }
+
+const DEFAULT_TRENDING_QUERIES: TrendingQuery[] = [
+    {
+        icon: 'sparkles',
+        text: 'Global Climate Agreement Reached',
+        category: 'politics',
+    },
+    {
+        icon: 'code',
+        text: 'New AI Model Breaks Records',
+        category: 'tech',
+    },
+    {
+        icon: 'globe',
+        text: 'Stock Markets Hit All-Time High',
+        category: 'finance',
+    },
+    {
+        icon: 'sparkles',
+        text: 'Major Sports Championship Results',
+        category: 'sports',
+    },
+    {
+        icon: 'globe',
+        text: 'Breakthrough in Cancer Research',
+        category: 'health',
+    },
+    {
+        icon: 'code',
+        text: 'Space Mission Makes New Discovery',
+        category: 'science',
+    },
+];
 
 const HomeContent = () => {
     const [query] = useQueryState('query', parseAsString.withDefault(''));
@@ -52,35 +87,11 @@ const HomeContent = () => {
     const initializedRef = useRef(false);
     const [selectedGroup, setSelectedGroup] = useState<SearchGroupId>('web');
 
-    const CACHE_KEY = 'trendingQueriesCache';
-    const CACHE_DURATION = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
-
-    interface TrendingQueriesCache {
-        data: TrendingQuery[];
-        timestamp: number;
-    }
-
-    const getTrendingQueriesFromCache = useCallback((): TrendingQueriesCache | null => {
-        if (typeof window === 'undefined') return null;
-
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (!cached) return null;
-        const parsedCache = JSON.parse(cached) as TrendingQueriesCache;
-        const now = Date.now();
-
-        if (now - parsedCache.timestamp > CACHE_DURATION) {
-            localStorage.removeItem(CACHE_KEY);
-            return null;
-        }
-
-        return parsedCache;
-    }, [CACHE_DURATION]);
+    const [trendingQueries, setTrendingQueries] = useState<TrendingQuery[]>([]);
 
     useEffect(() => {
-        console.log('selectedModel', selectedModel);
-    }, [selectedModel]);
-
-    const [trendingQueries, setTrendingQueries] = useState<TrendingQuery[]>([]);
+        setTrendingQueries(DEFAULT_TRENDING_QUERIES);
+    }, []);
 
     const chatOptions: UseChatOptions = useMemo(
         () => ({
@@ -125,35 +136,6 @@ const HomeContent = () => {
             });
         }
     }, [initialState.query, append, setInput, messages.length]);
-
-    useEffect(() => {
-        const fetchTrending = async () => {
-            const cached = getTrendingQueriesFromCache();
-            if (cached) {
-                setTrendingQueries(cached.data);
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/trending');
-                if (!res.ok) throw new Error('Failed to fetch trending queries');
-                const data = await res.json();
-
-                const cacheData: TrendingQueriesCache = {
-                    data,
-                    timestamp: Date.now(),
-                };
-                localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-
-                setTrendingQueries(data);
-            } catch (error) {
-                console.error('Error fetching trending queries:', error);
-                setTrendingQueries([]);
-            }
-        };
-
-        fetchTrending();
-    }, [getTrendingQueriesFromCache]);
 
     const lastUserMessageIndex = useMemo(() => {
         for (let i = messages.length - 1; i >= 0; i--) {
@@ -289,33 +271,123 @@ const HomeContent = () => {
         [trendingQueries, handleExampleClick],
     );
 
-    return (
-        <div className="flex flex-col !font-sans items-center min-h-screen text-foreground transition-all duration-500 relative">
-            <GradientBackground />
-            <Navbar hasSubmitted={hasSubmitted} />
+    const handleAnalyzeItem = useCallback(
+        async (title: string, content: string) => {
+            setHasSubmitted(true);
+            setSuggestedQuestions([]);
+            lastSubmittedQueryRef.current = content;
+            
+            await append({
+                content,
+                role: 'user',
+            });
+        },
+        [append, setHasSubmitted, setSuggestedQuestions],
+    );
 
-            <div
-                className={`w-full p-2 sm:p-4 z-20 ${
-                    hasSubmitted ? 'mt-20 sm:mt-16' : 'flex-1 flex items-center justify-center'
-                }`}
-            >
+    const handleAnalyzeAll = useCallback(
+        async (items: { title: string; content: string }[]) => {
+            if (items.length === 0) return;
+            
+            setHasSubmitted(true);
+            setSuggestedQuestions([]);
+            lastSubmittedQueryRef.current = items[0].content;
+            
+            await append({
+                content: items[0].content,
+                role: 'user',
+            });
+        },
+        [append, setHasSubmitted, setSuggestedQuestions],
+    );
+
+    return (
+        <div className="flex h-screen bg-background">
+            <SelectedItemsSidebar 
+                onAnalyzeItem={handleAnalyzeItem}
+                onAnalyzeAll={handleAnalyzeAll}
+            />
+            <div className="flex-1 flex flex-col !font-sans items-center text-foreground transition-all duration-500 relative">
+                <GradientBackground />
+                <Navbar hasSubmitted={hasSubmitted} />
+
                 <div
-                    className={`w-full max-w-[90%] !font-sans sm:max-w-2xl space-y-6 p-0 mx-auto transition-all duration-300 flex flex-col`}
+                    className={`w-full p-2 sm:p-4 z-20 ${
+                        hasSubmitted ? 'mt-20 sm:mt-16' : 'flex-1 flex items-center justify-center'
+                    }`}
                 >
-                    {!hasSubmitted && (
-                        <div className="text-center !font-sans">
-                            <h1 className="text-2xl sm:text-4xl mb-6 text-neutral-800 dark:text-neutral-100 font-syne">
-                                Uncover truth in all dimensions
-                            </h1>
-                        </div>
-                    )}
-                    <AnimatePresence>
+                    <div
+                        className={`w-full max-w-[90%] !font-sans sm:max-w-2xl space-y-6 p-0 mx-auto transition-all duration-300 flex flex-col`}
+                    >
                         {!hasSubmitted && (
+                            <div className="text-center !font-sans">
+                                <h1 className="text-2xl sm:text-4xl mb-6 text-foreground font-syne">
+                                    Uncover truth in all dimensions
+                                </h1>
+                            </div>
+                        )}
+                        <AnimatePresence>
+                            {!hasSubmitted && (
+                                <motion.div
+                                    initial={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 20 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="!mt-4"
+                                >
+                                    <FormComponent
+                                        input={input}
+                                        setInput={setInput}
+                                        attachments={attachments}
+                                        setAttachments={setAttachments}
+                                        hasSubmitted={hasSubmitted}
+                                        setHasSubmitted={setHasSubmitted}
+                                        isLoading={isLoading}
+                                        handleSubmit={handleSubmit}
+                                        fileInputRef={fileInputRef}
+                                        inputRef={inputRef}
+                                        stop={stop}
+                                        messages={memoizedMessages}
+                                        append={append}
+                                        selectedModel={selectedModel}
+                                        setSelectedModel={handleModelChange}
+                                        resetSuggestedQuestions={resetSuggestedQuestions}
+                                        lastSubmittedQueryRef={lastSubmittedQueryRef}
+                                        selectedGroup={selectedGroup}
+                                        setSelectedGroup={setSelectedGroup}
+                                        showExperimentalModels={true}
+                                    />
+                                    {memoizedSuggestionCards}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        <MessageList
+                            messages={memoizedMessages}
+                            suggestedQuestions={suggestedQuestions}
+                            handleSuggestedQuestionClick={handleSuggestedQuestionClick}
+                            isEditingMessage={isEditingMessage}
+                            editingMessageIndex={editingMessageIndex}
+                            input={input}
+                            setInput={setInput}
+                            setIsEditingMessage={setIsEditingMessage}
+                            setEditingMessageIndex={setEditingMessageIndex}
+                            handleMessageEdit={handleMessageEdit}
+                            handleMessageUpdate={handleMessageUpdate}
+                            isLoading={isLoading}
+                            lastUserMessageIndex={lastUserMessageIndex}
+                            data={data}
+                        />
+                        <div ref={bottomRef} />
+                    </div>
+
+                    <AnimatePresence>
+                        {hasSubmitted && (
                             <motion.div
-                                initial={{ opacity: 1, y: 0 }}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 20 }}
                                 transition={{ duration: 0.5 }}
-                                className="!mt-4"
+                                className="fixed bottom-4 left-64 right-0 w-full max-w-[90%] sm:max-w-2xl mx-auto"
                             >
                                 <FormComponent
                                     input={input}
@@ -329,7 +401,7 @@ const HomeContent = () => {
                                     fileInputRef={fileInputRef}
                                     inputRef={inputRef}
                                     stop={stop}
-                                    messages={memoizedMessages}
+                                    messages={messages}
                                     append={append}
                                     selectedModel={selectedModel}
                                     setSelectedModel={handleModelChange}
@@ -337,66 +409,12 @@ const HomeContent = () => {
                                     lastSubmittedQueryRef={lastSubmittedQueryRef}
                                     selectedGroup={selectedGroup}
                                     setSelectedGroup={setSelectedGroup}
-                                    showExperimentalModels={true}
+                                    showExperimentalModels={false}
                                 />
-                                {memoizedSuggestionCards}
                             </motion.div>
                         )}
                     </AnimatePresence>
-
-                    <MessageList
-                        messages={memoizedMessages}
-                        suggestedQuestions={suggestedQuestions}
-                        handleSuggestedQuestionClick={handleSuggestedQuestionClick}
-                        isEditingMessage={isEditingMessage}
-                        editingMessageIndex={editingMessageIndex}
-                        input={input}
-                        setInput={setInput}
-                        setIsEditingMessage={setIsEditingMessage}
-                        setEditingMessageIndex={setEditingMessageIndex}
-                        handleMessageEdit={handleMessageEdit}
-                        handleMessageUpdate={handleMessageUpdate}
-                        isLoading={isLoading}
-                        lastUserMessageIndex={lastUserMessageIndex}
-                        data={data}
-                    />
-                    <div ref={bottomRef} />
                 </div>
-
-                <AnimatePresence>
-                    {hasSubmitted && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            transition={{ duration: 0.5 }}
-                            className="fixed bottom-4 left-0 right-0 w-full max-w-[90%] sm:max-w-2xl mx-auto"
-                        >
-                            <FormComponent
-                                input={input}
-                                setInput={setInput}
-                                attachments={attachments}
-                                setAttachments={setAttachments}
-                                hasSubmitted={hasSubmitted}
-                                setHasSubmitted={setHasSubmitted}
-                                isLoading={isLoading}
-                                handleSubmit={handleSubmit}
-                                fileInputRef={fileInputRef}
-                                inputRef={inputRef}
-                                stop={stop}
-                                messages={messages}
-                                append={append}
-                                selectedModel={selectedModel}
-                                setSelectedModel={handleModelChange}
-                                resetSuggestedQuestions={resetSuggestedQuestions}
-                                lastSubmittedQueryRef={lastSubmittedQueryRef}
-                                selectedGroup={selectedGroup}
-                                setSelectedGroup={setSelectedGroup}
-                                showExperimentalModels={false}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </div>
         </div>
     );

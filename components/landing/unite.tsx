@@ -5,7 +5,7 @@ import { OrbitingCircles } from '@/components/ui/orbiting-circles';
 import { Icons } from '@/components/landing/icons';
 export function Unite() {
     return (
-        <div className="flex flex-row items-center justify-center py-20 h-screen md:h-auto dark:bg-black bg-white relative w-full">
+        <div className="flex flex-row items-center justify-center py-20 h-screen md:h-auto bg-background relative w-full">
             <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-full md:h-[40rem] px-4">
                 <motion.div
                     initial={{
@@ -21,10 +21,10 @@ export function Unite() {
                     }}
                     className="div"
                 >
-                    <h2 className="text-center text-xl md:text-4xl font-bold text-black dark:text-white">
+                    <h2 className="text-center text-xl md:text-4xl font-bold text-foreground">
                         Bridging Information Complexity with Clarity
                     </h2>
-                    <p className="text-center text-base md:text-lg font-normal text-neutral-700 dark:text-neutral-200 max-w-lg mt-4 mx-auto">
+                    <p className="text-center text-base md:text-lg font-normal text-muted-foreground max-w-lg mt-4 mx-auto">
                         Delivering rigorous research and unbiased analysis through advanced AI synthesis and comprehensive data integration.
                     </p>
                 </motion.div>

@@ -134,16 +134,16 @@ export const NewsletterSidebar = () => {
 
     if (isLoading) {
         return (
-            <div className="w-64 bg-black border-r border-white/10 p-4 flex items-center justify-center">
-                <Loader2 className="w-6 h-6 animate-spin text-white/50" />
+            <div className="w-64 bg-background border-r border-border p-4 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
     return (
-        <div className="w-64 bg-black border-r border-white/10 flex flex-col h-full">
-            <div className="p-4 border-b border-white/10">
-                <h2 className="text-lg font-medium text-white/90">Your Newsletters</h2>
+        <div className="w-64 bg-background border-r border-border flex flex-col h-full">
+            <div className="p-4 border-b border-border">
+                <h2 className="text-lg font-medium text-foreground">Your Newsletters</h2>
             </div>
             
             <div className="flex-1 overflow-y-auto p-2">
@@ -157,16 +157,16 @@ export const NewsletterSidebar = () => {
                             onClick={() => setSelectedDigestId(digest.id)}
                             className={cn(
                                 "w-full text-left p-3 rounded-lg transition-colors",
-                                "hover:bg-white/5 group",
-                                selectedDigestId === digest.id ? "bg-white/10" : ""
+                                "hover:bg-muted group",
+                                selectedDigestId === digest.id ? "bg-muted/80" : ""
                             )}
                         >
                             {/* Date and Time Ago */}
                             <div className="flex items-center justify-between">
-                                <div className="text-sm font-medium text-white/90">
+                                <div className="text-sm font-medium text-foreground">
                                     {format(updatedAt, 'MMM d, yyyy')}
                                 </div>
-                                <div className="flex items-center text-[10px] text-white/40 gap-1">
+                                <div className="flex items-center text-[10px] text-muted-foreground gap-1">
                                     <Clock className="w-3 h-3" />
                                     {formatDistanceToNow(updatedAt, { addSuffix: true })}
                                 </div>
@@ -174,26 +174,26 @@ export const NewsletterSidebar = () => {
 
                             {/* Article Count and Read Time */}
                             <div className="flex items-center justify-between mt-2">
-                                <div className="flex items-center gap-1.5 text-xs text-white/60">
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <FileText className="w-3 h-3" />
                                     <span className="font-medium">{metadata.articleCount}</span>
-                                    <span className="text-white/40">articles</span>
+                                    <span className="text-muted-foreground/60">articles</span>
                                 </div>
-                                <div className="text-xs text-white/40">
+                                <div className="text-xs text-muted-foreground/60">
                                     {metadata.readTimeMinutes}m read
                                 </div>
                             </div>
 
                             {/* Status Indicator */}
                             <div className={cn(
-                                "w-full h-0.5 mt-3 rounded-full bg-white/5",
-                                "group-hover:bg-white/10 transition-colors",
-                                selectedDigestId === digest.id && "bg-white/20"
+                                "w-full h-0.5 mt-3 rounded-full bg-muted/50",
+                                "group-hover:bg-muted-foreground/20 transition-colors",
+                                selectedDigestId === digest.id && "bg-muted-foreground/30"
                             )}>
                                 <div 
                                     className={cn(
                                         "h-full rounded-full transition-all duration-300",
-                                        digest.formatted_content ? "bg-green-500/50 w-full" : "bg-yellow-500/50 w-1/2"
+                                        digest.formatted_content ? "bg-primary w-full" : "bg-secondary w-1/2"
                                     )}
                                 />
                             </div>
@@ -202,13 +202,13 @@ export const NewsletterSidebar = () => {
                 })}
             </div>
 
-            <div className="p-4 border-t border-white/10 space-y-2">
+            <div className="p-4 border-t border-border space-y-2">
                 <button
                     onClick={formatContent}
                     disabled={isFormatting || !selectedDigest || selectedDigest.formatted_content !== null}
                     className={cn(
-                        "w-full px-3 py-1.5 text-sm font-medium text-white/70 hover:text-white",
-                        "bg-white/5 hover:bg-white/10 rounded-md transition-colors",
+                        "w-full px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground",
+                        "bg-muted hover:bg-muted/80 rounded-md transition-colors",
                         "disabled:opacity-50 disabled:cursor-not-allowed"
                     )}
                 >
@@ -220,8 +220,8 @@ export const NewsletterSidebar = () => {
                 {selectedDigest?.formatted_content && (
                     <button
                         onClick={resetFormatting}
-                        className="w-full px-3 py-1.5 text-sm font-medium text-white/70 hover:text-white 
-                                 bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+                        className="w-full px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground 
+                                 bg-muted hover:bg-muted/80 rounded-md transition-colors"
                     >
                         Reset to Original
                     </button>

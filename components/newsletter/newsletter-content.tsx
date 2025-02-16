@@ -31,6 +31,42 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
     const supabase = createClient();
 
     const fetchDigest = useCallback(async (id?: string) => {
+        try {
+            setIsLoading(true);
+            const { data: userData, error: userError } = await supabase.auth.getUser();
+            if (userError) throw userError;
+            let query = supabase
+                .from('user_digests')
+                .select('*')
+                .eq('user_id', userData.user.id);
+
+            if (id) {
+                query = query.eq('id', id);
+            } else {
+                query = query.order('updated_at', { ascending: false }).limit(1);
+            }
+
+            const { data: digest, error: digestError } = await query.single();
+
+            if (digestError) throw digestError;
+
+            if (digest) {
+                setSupabaseRow(digest);
+                setOriginalContent(digest.combined_analysis);
+                if (digest.formatted_content) {
+                    console.log(digest.formatted_content)
+                    setFormattedContent(digest.formatted_content);
+                    toast.info('Using previously formatted content');
+                } else if (digest.combined_analysis) {
+                    await formatContent(digest.combined_analysis, digest.id);
+                }
+            }
+        } catch (err) {
+            setError('Failed to fetch digest');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [supabase, formattedContent]);
 
     const formatContent = async (content: string, id?: string) => {
         if (formattedContent) {
@@ -95,43 +131,6 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
             setIsFormatting(false);
         }
     };
-        try {
-            setIsLoading(true);
-            const { data: userData, error: userError } = await supabase.auth.getUser();
-            if (userError) throw userError;
-            let query = supabase
-                .from('user_digests')
-                .select('*')
-                .eq('user_id', userData.user.id);
-
-            if (id) {
-                query = query.eq('id', id);
-            } else {
-                query = query.order('updated_at', { ascending: false }).limit(1);
-            }
-
-            const { data: digest, error: digestError } = await query.single();
-
-            if (digestError) throw digestError;
-
-            if (digest) {
-                setSupabaseRow(digest);
-                setOriginalContent(digest.combined_analysis);
-                if (digest.formatted_content) {
-                    console.log(digest.formatted_content)
-                    setFormattedContent(digest.formatted_content);
-                    toast.info('Using previously formatted content');
-                } else if (digest.combined_analysis) {
-                    await formatContent(digest.combined_analysis, digest.id);
-                }
-            }
-        } catch (err) {
-            setError('Failed to fetch digest');
-        } finally {
-            setIsLoading(false);
-        }
-    }, [supabase, formattedContent]);
-
 
     useEffect(() => {
         fetchDigest(digestId);
@@ -139,10 +138,10 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen w-full bg-black flex items-center justify-center">
+            <div className="min-h-screen w-full bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-white/50" />
-                    <p className="text-white/70">Loading your newsletter...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    <p className="text-muted-foreground">Loading your newsletter...</p>
                 </div>
             </div>
         );
@@ -150,10 +149,10 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
 
     if (isFormatting) {
         return (
-            <div className="min-h-screen w-full bg-black flex items-center justify-center">
+            <div className="min-h-screen w-full bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-white/50" />
-                    <p className="text-white/70">Formatting newsletter with AI...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    <p className="text-muted-foreground">Formatting newsletter with AI...</p>
                 </div>
             </div>
         );
@@ -161,9 +160,9 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
 
     if (!originalContent) {
         return (
-            <div className="min-h-screen w-full bg-black flex items-center justify-center">
+            <div className="min-h-screen w-full bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <p className="text-white/70">No newsletter content found.</p>
+                    <p className="text-muted-foreground">No newsletter content found.</p>
                 </div>
             </div>
         );
@@ -172,22 +171,22 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
     const newsData = parseNewsletterText(formattedContent || originalContent);
 
     return (
-        <div className="min-h-screen w-full bg-black">
+        <div className="min-h-screen w-full bg-background">
             <ScrollProgress />
 
-            <div className="fixed top-0 left-64 right-0 bg-black/50 backdrop-blur-md z-40 border-b border-white/10">
+            <div className="fixed top-0 left-64 right-0 bg-background/50 backdrop-blur-md z-40 border-b border-border">
                 <div className="px-4 py-6">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-2xl font-medium text-white/90"
+                        className="text-2xl font-medium text-foreground"
                     >
                         Newsletter
                     </motion.h1>
 
                     {error && (
-                        <div className="mt-4 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-md">
-                            <p className="text-red-400 text-sm">{error}</p>
+                        <div className="mt-4 px-4 py-2 bg-destructive/10 border border-destructive/20 rounded-md">
+                            <p className="text-destructive text-sm">{error}</p>
                         </div>
                     )}
                 </div>

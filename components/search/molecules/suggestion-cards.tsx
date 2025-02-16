@@ -1,4 +1,3 @@
-import { TrendingQuery } from '@/app/api/trending/route';
 import { 
     Users, 
     Brain, 
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { TrendingQuery } from '@/lib/types';
 
 interface SuggestionCardsProps {
     trendingQueries: TrendingQuery[];

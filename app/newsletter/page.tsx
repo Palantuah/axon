@@ -9,7 +9,7 @@ const NewsletterPage = () => {
     const { selectedDigestId } = useNewsletterStore();
 
     return (
-        <div className="flex h-screen bg-black">
+        <div className="flex h-screen bg-background">
             <NewsletterSidebar />
             <div className="flex-1">
                 <NewsletterContent digestId={selectedDigestId || undefined} />

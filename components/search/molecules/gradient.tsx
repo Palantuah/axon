@@ -22,13 +22,14 @@ export const GradientBackground = ({
                     background: `
                         linear-gradient(
                             135deg,
-                            rgba(255, 255, 255, 0.5) 0%,
-                            rgba(240, 249, 255, 0.4) 25%,
-                            rgba(224, 242, 254, 0.3) 50%,
-                            rgba(186, 230, 253, 0.2) 75%,
-                            rgba(125, 211, 252, 0.1) 100%
+                            hsl(var(--background)) 0%,
+                            hsl(var(--muted)) 25%,
+                            hsl(var(--accent)) 50%,
+                            hsl(var(--secondary)) 75%,
+                            hsl(var(--primary)) 100%
                         )
                     `,
+                    opacity: 0.5,
                     filter: 'blur(100px)',
                 }}
             />
@@ -38,13 +39,14 @@ export const GradientBackground = ({
                     background: `
                         linear-gradient(
                             135deg,
-                            rgba(2, 6, 23, 0.5) 0%,
-                            rgba(15, 23, 42, 0.4) 25%,
-                            rgba(30, 41, 59, 0.3) 50%,
-                            rgba(51, 65, 85, 0.2) 75%,
-                            rgba(71, 85, 105, 0.1) 100%
+                            hsl(var(--background)) 0%,
+                            hsl(var(--muted)) 25%,
+                            hsl(var(--accent)) 50%,
+                            hsl(var(--secondary)) 75%,
+                            hsl(var(--primary)) 100%
                         )
                     `,
+                    opacity: 0.2,
                     filter: 'blur(100px)',
                 }}
             />
