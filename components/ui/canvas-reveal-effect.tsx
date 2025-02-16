@@ -10,6 +10,7 @@ export const CanvasRevealEffect = ({
   colors = [[0, 255, 255]],
   containerClassName,
   dotSize,
+  totalSize,
   showGradient = true,
 }: {
   /**
@@ -21,6 +22,7 @@ export const CanvasRevealEffect = ({
   colors?: number[][];
   containerClassName?: string;
   dotSize?: number;
+  totalSize?: number;
   showGradient?: boolean;
 }) => {
   return (
@@ -28,7 +30,8 @@ export const CanvasRevealEffect = ({
       <div className="h-full w-full">
         <DotMatrix
           colors={colors ?? [[0, 255, 255]]}
-          dotSize={dotSize ?? 3}
+          dotSize={dotSize ?? 8}
+          totalSize={totalSize ?? 25}
           opacities={
             opacities ?? [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1]
           }
@@ -41,9 +44,7 @@ export const CanvasRevealEffect = ({
           center={["x", "y"]}
         />
       </div>
-      {/* {showGradient && ( */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-[90%]" />
-      {/* )} */}
+    
     </div>
   );
 };
@@ -60,8 +61,8 @@ interface DotMatrixProps {
 const DotMatrix: React.FC<DotMatrixProps> = ({
   colors = [[0, 0, 0]],
   opacities = [0.04, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
-  totalSize = 4,
-  dotSize = 2,
+  totalSize = 10,
+  dotSize = 4,
   shader = "",
   center = ["x", "y"],
 }) => {

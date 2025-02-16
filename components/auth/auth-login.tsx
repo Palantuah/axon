@@ -166,7 +166,7 @@ export function MantraAuthForm({ className }: AuthFormProps) {
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
                             variant="outline"
-                            className="relative group w-full h-11 bg-background/60 border-white/10 hover:bg-white/5 hover:border-white/20 transition-all duration-200"
+                            className="relative group w-full h-11 bg-background/60 border-white/10 hover:bg-white/5 hover:border-white/20 transition-all duration-200 backdrop-blur-sm"
                         >
                             <motion.div
                                 className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-violet-500/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-md"

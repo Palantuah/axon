@@ -29,7 +29,7 @@ export const CardSpotlight = ({
       {...props}
     >
       <motion.div
-        className="pointer-events-none absolute z-0 -inset-px rounded-md opacity-0 transition duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute z-0 -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
       >
         {isHovering && (
           <CanvasRevealEffect
@@ -43,7 +43,8 @@ export const CardSpotlight = ({
                 ? [139, 92, 246]  // violet-500
                 : [124, 58, 237], // violet-600
             ]}
-            dotSize={32}
+            dotSize={4}
+            totalSize={16}
             opacities={[0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.6, 0.6, 0.6, 0.8]}
           />
         )}
