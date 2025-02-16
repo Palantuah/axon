@@ -3,38 +3,43 @@
 import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { getPreferences, updatePreferences } from '../api/main/actions';
+import { getPreferences, updatePreferences, getNewsletters } from '../api/main/actions';
+
 export default function DashBoard() {
     const supabase = createClient();
     const [preferences, setPreferences] = useState([]);
     const [selectedPreferences, setSelectedPreferences] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [newsletters, setNewsletters] = useState([]);
 
-    // Available topic preferences (example categories)
+    // Available topic preferences
     const availablePreferences = ['Technology', 'Music', 'Space', 'Health', 'Finance', 'Gaming'];
 
     useEffect(() => {
-        async function fetchPreferences() {
+        async function fetchData() {
             const user = await supabase.auth.getUser();
             if (!user?.data?.user) {
                 redirect('/login');
             }
 
+            // Fetch preferences
             const data = await getPreferences();
             setPreferences(data || []);
             setSelectedPreferences(data || []);
+
+            // Fetch newsletters
+            const newslettersData = await getNewsletters();
+            setNewsletters(newslettersData || []);
+
             setLoading(false);
         }
 
-        fetchPreferences();
+        fetchData();
     }, []);
 
     const handlePreferenceChange = (topic) => {
-        setSelectedPreferences(
-            (prev) =>
-                prev.includes(topic)
-                    ? prev.filter((pref) => pref !== topic) // Remove if already selected
-                    : [...prev, topic], // Add if not selected
+        setSelectedPreferences((prev) =>
+            prev.includes(topic) ? prev.filter((pref) => pref !== topic) : [...prev, topic],
         );
     };
 
@@ -92,6 +97,29 @@ export default function DashBoard() {
                             <li className="text-gray-400">No preferences selected</li>
                         )}
                     </ul>
+                </div>
+
+                {/* Newsletters Section */}
+                <div className="p-6 bg-white rounded-lg shadow-md mt-6">
+                    <h2 className="text-xl font-semibold text-gray-700">Latest Newsletters</h2>
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {newsletters.length > 0 ? (
+                            newsletters.map((newsletter) => (
+                                <div key={newsletter.id} className="p-4 bg-gray-50 rounded-lg shadow-sm">
+                                    <h3 className="font-semibold text-gray-800">{newsletter.category}</h3>
+                                    <p className="text-gray-600 mt-2">{newsletter.content}</p>
+                                    {newsletter.podcast_url && (
+                                        <audio controls className="mt-4 w-full">
+                                            <source src={newsletter.podcast_url} type="audio/mpeg" />
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No newsletters available</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

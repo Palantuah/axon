@@ -46,3 +46,18 @@ export async function updatePreferences(preferences) {
 
     return { success: true };
 }
+
+export async function getNewsletters() {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from('newsletters')
+        .select('id, category, content, timestamp, podcast_url')
+        .order('timestamp', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching newsletters:', error);
+        return [];
+    }
+
+    return data;
+}
