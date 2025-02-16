@@ -52,6 +52,16 @@ export interface StreamUpdate {
     overwrite?: boolean;
 }
 
+type IconType = typeof Search | typeof FileText | typeof BookA | typeof Loader2 | typeof Sparkles;
+
+const icons: Record<StreamUpdate['type'], IconType> = {
+    plan: Search,
+    web: FileText,
+    academic: BookA,
+    progress: Loader2,
+    analysis: Sparkles
+};
+
 const ResearchStep = ({ 
     update, 
     isExpanded,
@@ -61,14 +71,7 @@ const ResearchStep = ({
     isExpanded: boolean,
     onToggle: () => void
 }) => {
-    const icons = {
-        plan: Search,
-        web: FileText,
-        academic: BookA,
-        progress: Loader2,
-        analysis: Sparkles
-    } as const;
-    const Icon = icons[update.type];
+    const Icon = icons[update.type] || Search;
 
     return (
         <div className="group">

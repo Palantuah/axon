@@ -25,12 +25,11 @@ export function PreferencesModal() {
 
     // Available topic preferences with icons and descriptions
     const availablePreferences = [
-        { id: 'Technology', icon: '💻', description: 'Latest in tech and innovation', color: 'from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30' },
-        { id: 'Music', icon: '🎵', description: 'Music news and trends', color: 'from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30' },
-        { id: 'Space', icon: '🚀', description: 'Space exploration and astronomy', color: 'from-indigo-500/20 to-violet-500/20 hover:from-indigo-500/30 hover:to-violet-500/30' },
-        { id: 'Health', icon: '🏥', description: 'Health and medical news', color: 'from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30' },
-        { id: 'Finance', icon: '💰', description: 'Financial markets and business', color: 'from-yellow-500/20 to-amber-500/20 hover:from-yellow-500/30 hover:to-amber-500/30' },
-        { id: 'Gaming', icon: '🎮', description: 'Gaming industry and culture', color: 'from-red-500/20 to-rose-500/20 hover:from-red-500/30 hover:to-rose-500/30' }
+        { id: 'Finance', icon: '💰', description: 'Financial markets and business news', color: 'from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30' },
+        { id: 'US News', icon: '🇺🇸', description: 'Latest news from across the United States', color: 'from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30' },
+        { id: 'Global News', icon: '🌎', description: 'International news and world events', color: 'from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30' },
+        { id: 'Sports', icon: '⚽', description: 'Sports coverage and athletic events', color: 'from-yellow-500/20 to-amber-500/20 hover:from-yellow-500/30 hover:to-amber-500/30' },
+        { id: 'Tech', icon: '💻', description: 'Technology news and innovations', color: 'from-indigo-500/20 to-violet-500/20 hover:from-indigo-500/30 hover:to-violet-500/30' }
     ];
 
     useEffect(() => {
@@ -103,7 +102,7 @@ export function PreferencesModal() {
                             Customize Your Feed
                         </DialogTitle>
                         <DialogDescription className="text-neutral-600 dark:text-neutral-400">
-                            Select up to 3 topics you're interested in to personalize your content
+                            Select up to 3 topics you&apos;re interested in to personalize your content
                         </DialogDescription>
                     </DialogHeader>
 

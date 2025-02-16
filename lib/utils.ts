@@ -26,7 +26,7 @@ export const searchGroups = [
   // {
   //   id: 'fun' as const,
   //   name: 'Fun',
-  //   description: 'Talk to Grok like a digital friend',
+  //   description: 'Talk to 4o like a digital friend',
   //   icon: Pen,
   // },
   // {

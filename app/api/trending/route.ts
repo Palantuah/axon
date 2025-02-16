@@ -2,6 +2,7 @@ import { xai } from '@ai-sdk/xai';
 import { generateObject } from 'ai';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { openai } from '@ai-sdk/openai';
 
 export interface TrendingQuery {
     icon: string;
@@ -52,7 +53,7 @@ async function fetchGoogleTrends(): Promise<TrendingQuery[]> {
             const itemsWithCategoryAndIcon = await Promise.all(
                 items.map(async (item) => {
                     const { object } = await generateObject({
-                        model: xai("grok-beta"),
+                        model: openai('gpt-4o'),
                         prompt: `Give the category for the topic from the existing values only in lowercase only: ${item.replace(
                             /<\/?title>/g,
                             '',

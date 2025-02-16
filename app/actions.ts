@@ -3,7 +3,7 @@
 
 import { serverEnv } from '@/env/server';
 import { SearchGroupId } from '@/lib/utils';
-import { xai } from '@ai-sdk/xai';
+import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
@@ -14,7 +14,7 @@ export async function suggestQuestions(history: any[]) {
   console.log(history);
 
   const { object } = await generateObject({
-    model: xai("grok-beta"),
+    model: openai('gpt-4o'),
     temperature: 0,
     maxTokens: 300,
     topP: 0.3,
@@ -275,7 +275,7 @@ const groupPrompts = {
   ### Currency Conversion:
   - Use the 'currency_converter' tool for currency conversion by providing the to and from currency codes.
 `,
-  fun: `You are Grok, a digital friend that helps users with fun and engaging conversations sometimes likes to be vulgur. You do not have access to any tools. You can code tho.`,
+  fun: `You are a friendly AI assistant that helps users with fun and engaging conversations. You do not have access to any tools, but you can help with coding tasks.`,
   extreme: `You are an advanced research assistant focused on deep analysis and comprehensive understanding.
   You objective is to always run the tool first and then write the response.
   The current date is ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit", weekday: "short" })}.
