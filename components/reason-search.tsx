@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, FileText, BookA, Sparkles, ArrowRight, ChevronLeft, ChevronRight, ChevronDown, Loader2 } from 'lucide-react';
+import { Search, FileText, BookA, Sparkles, ArrowRight, ChevronLeft, ChevronRight, ChevronDown, Loader2, Check } from 'lucide-react';
 import React, { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -10,10 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import Image from 'next/image';
 
 export interface StreamUpdate {
     id: string;
-    type: 'plan' | 'web' | 'academic' | 'analysis' | 'progress';
+    type: 'plan' | 'web' | 'academic' | 'analysis' | 'progress' | 'final-summary';
     status: 'running' | 'completed';
     timestamp: number;
     message: string;
@@ -50,6 +51,7 @@ export interface StreamUpdate {
     isComplete?: boolean;
     title?: string;
     overwrite?: boolean;
+    summary?: any;
 }
 
 type IconType = typeof Search | typeof FileText | typeof BookA | typeof Loader2 | typeof Sparkles;
@@ -59,7 +61,8 @@ const icons: Record<StreamUpdate['type'], IconType> = {
     web: FileText,
     academic: BookA,
     progress: Loader2,
-    analysis: Sparkles
+    analysis: Sparkles,
+    'final-summary': Sparkles
 };
 
 const ResearchStep = ({ 
@@ -187,9 +190,11 @@ const ResearchStep = ({
                                             className="flex items-start gap-2 p-2 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
                                         >
                                             <div className="flex-shrink-0 mt-1">
-                                                <img 
+                                                <Image 
                                                     src={`https://www.google.com/s2/favicons?domain=${new URL(result.url).hostname}&sz=128`}
                                                     alt=""
+                                                    width={16}
+                                                    height={16}
                                                     className="w-4 h-4"
                                                     onError={(e) => {
                                                         const target = e.target as HTMLImageElement;
@@ -311,9 +316,11 @@ const SourcesList = ({ sources, type }: { sources: StreamUpdate['results'], type
                 >
                     <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 mt-1">
-                            <img 
+                            <Image 
                                 src={`https://www.google.com/s2/favicons?domain=${new URL(source.url).hostname}&sz=128`}
                                 alt=""
+                                width={16}
+                                height={16}
                                 className="w-4 h-4"
                                 onError={(e) => {
                                     // Fallback to type icon if favicon fails to load
@@ -439,6 +446,97 @@ const EmptyState = ({ type }: { type: 'web' | 'academic' | 'analysis' }) => {
             <p className="text-sm text-neutral-500 text-center">
                 {messages[type]}
             </p>
+        </div>
+    );
+};
+
+const FinalSummary = ({ summary }: { summary: any }) => {
+    if (!summary) return null;
+
+    return (
+        <div className="space-y-4">
+            <div className="flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5" />
+                <h3 className="text-sm font-medium">Research Summary</h3>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800/50 space-y-4">
+                {/* Plain text summary */}
+                <p className="text-sm leading-relaxed">
+                    {summary.plain_text_summary}
+                </p>
+
+                {/* Key findings */}
+                <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Key Findings</h4>
+                    <div className="grid gap-2">
+                        {summary.key_findings.map((finding: any, i: number) => (
+                            <div 
+                                key={i}
+                                className="flex items-start gap-2 p-2 rounded-md bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800"
+                            >
+                                <div className="flex-shrink-0 mt-1">
+                                    <div className={cn(
+                                        "w-1.5 h-1.5 rounded-full",
+                                        finding.importance >= 4 
+                                            ? "bg-neutral-900 dark:bg-neutral-50" 
+                                            : "bg-neutral-400 dark:bg-neutral-600"
+                                    )} />
+                                </div>
+                                <p className="text-xs">{finding.finding}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Consensus and disagreements */}
+                <div className="grid gap-4 pt-2">
+                    {summary.consensus_points.length > 0 && (
+                        <div>
+                            <h4 className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">Points of Consensus</h4>
+                            <div className="space-y-1.5">
+                                {summary.consensus_points.map((point: string, i: number) => (
+                                    <div key={i} className="flex items-start gap-2">
+                                        <Check className="h-3 w-3 text-neutral-500 mt-0.5 flex-shrink-0" />
+                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{point}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {summary.disagreements.length > 0 && (
+                        <div>
+                            <h4 className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">Areas of Disagreement</h4>
+                            <div className="space-y-1.5">
+                                {summary.disagreements.map((point: string, i: number) => (
+                                    <div key={i} className="flex items-start gap-2">
+                                        <ArrowRight className="h-3 w-3 text-neutral-500 mt-0.5 flex-shrink-0" />
+                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{point}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Practical implications */}
+                {summary.practical_implications.length > 0 && (
+                    <div className="pt-2">
+                        <h4 className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">Practical Implications</h4>
+                        <div className="space-y-2">
+                            {summary.practical_implications.map((implication: string, i: number) => (
+                                <div 
+                                    key={i}
+                                    className="p-2 rounded-md bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800"
+                                >
+                                    <p className="text-xs">{implication}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
@@ -576,8 +674,18 @@ const ReasonSearch = ({ updates }: { updates: StreamUpdate[] }) => {
         };
     }, [updates]);
 
+    // Get the final summary update
+    const finalSummaryUpdate = React.useMemo(() => {
+        return updates.find(u => u.id === 'final-summary' && u.status === 'completed');
+    }, [updates]);
+
     return (
         <div className="space-y-8">
+            {/* Final Summary */}
+            {finalSummaryUpdate && (
+                <FinalSummary summary={finalSummaryUpdate.summary} />
+            )}
+
             {/* Progress Card */}
             <Card className="w-full shadow-none hover:shadow-none">
                 <div
@@ -685,9 +793,11 @@ const ReasonSearch = ({ updates }: { updates: StreamUpdate[] }) => {
                                                 >
                                                     <div className="flex items-start gap-2">
                                                         <div className="flex-shrink-0 mt-0.5">
-                                                            <img 
+                                                            <Image 
                                                                 src={`https://www.google.com/s2/favicons?domain=${new URL(source.url).hostname}&sz=128`}
                                                                 alt=""
+                                                                width={14}
+                                                                height={14}
                                                                 className="w-3.5 h-3.5"
                                                                 onError={(e) => {
                                                                     const target = e.target as HTMLImageElement;
@@ -746,9 +856,11 @@ const ReasonSearch = ({ updates }: { updates: StreamUpdate[] }) => {
                                                 >
                                                     <div className="flex items-start gap-2">
                                                         <div className="flex-shrink-0 mt-0.5">
-                                                            <img 
+                                                            <Image 
                                                                 src={`https://www.google.com/s2/favicons?domain=${new URL(source.url).hostname}&sz=128`}
                                                                 alt=""
+                                                                width={14}
+                                                                height={14}
                                                                 className="w-3.5 h-3.5"
                                                                 onError={(e) => {
                                                                     const target = e.target as HTMLImageElement;
