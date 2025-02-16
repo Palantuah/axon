@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ScrollProgress } from '@/components/news/scroll-progress';
 import { FormattedNewsletter } from '@/components/newsletter/formatted-newsletter';
 import { parseNewsletterText } from '@/lib/newsletter-utils';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { PodcastPlayer } from '@/components/newsletter/podcast-player';
 
 interface UserDigest {
     id: string;
@@ -171,18 +171,31 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
     const newsData = parseNewsletterText(formattedContent || originalContent);
 
     return (
-        <div className="min-h-screen w-full bg-background">
-            <ScrollProgress />
-
-            <div className="fixed top-0 left-64 right-0 bg-background/50 backdrop-blur-md z-40 border-b border-border">
+        <div className="relative h-screen flex flex-col bg-background">
+            <div className="sticky top-0 bg-background/50 backdrop-blur-md z-40 border-b border-border">
                 <div className="px-4 py-6">
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-2xl font-medium text-foreground"
-                    >
-                        Newsletter
-                    </motion.h1>
+                    <div className="flex items-center gap-8">
+                        <motion.h1
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-2xl font-medium text-foreground"
+                        >
+                            Axon Agentic News
+                        </motion.h1>
+                        
+                        {supabaseRow?.eleven_labs_url ? (
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="flex-1"
+                            >
+                                <PodcastPlayer audioUrl={supabaseRow.eleven_labs_url} />
+                            </motion.div>
+                        ) : (
+                            <div className="text-sm text-muted-foreground">No audio available</div>
+                        )}
+                    </div>
 
                     {error && (
                         <div className="mt-4 px-4 py-2 bg-destructive/10 border border-destructive/20 rounded-md">
@@ -192,7 +205,7 @@ export const NewsletterContent = ({ digestId }: NewsletterContentProps) => {
                 </div>
             </div>
 
-            <div className="h-screen overflow-y-auto pt-32 pb-8 px-4 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto px-4 py-8 scrollbar-hide">
                 <FormattedNewsletter sections={newsData} />
             </div>
         </div>

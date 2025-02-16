@@ -14,6 +14,7 @@ import { ThemeToggle } from './theme-toggle';
 import { redirect } from 'next/navigation';
 const navItems = [
     { href: '/features', label: 'Features' },
+    { href: '/newsletter', label: 'AI News' },
     { href: '/search', label: 'Search' },
 ];
 

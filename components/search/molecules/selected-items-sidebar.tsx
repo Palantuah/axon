@@ -1,33 +1,49 @@
 import { useSelectedItemsStore } from '@/lib/store/selected-items-store';
 import { format } from 'date-fns';
-import { Minus, Sparkles, FileText, Trash2, Search, Lightbulb } from 'lucide-react';
+import { Minus, FileText, Trash2, Search, Lightbulb, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { formatContent } from '@/lib/newsletter-utils';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 interface SelectedItemsSidebarProps {
     onAnalyzeItem?: (title: string, content: string) => void;
     onAnalyzeAll?: (items: { title: string; content: string }[]) => void;
+    onSendToChat?: (content: string) => void;
 }
 
 const ANALYSIS_PROMPT = "Conduct multidimensional research on the topic below to provide unbiased viewpoints that show the true synergy between ideas:";
 const MULTI_ANALYSIS_PROMPT = "Conduct multidimensional research on the following topics to provide unbiased viewpoints that show the true synergy between these ideas:";
 
-export const SelectedItemsSidebar = ({ onAnalyzeItem, onAnalyzeAll }: SelectedItemsSidebarProps) => {
+export const SelectedItemsSidebar = ({ onAnalyzeItem, onAnalyzeAll, onSendToChat }: SelectedItemsSidebarProps) => {
     const { selectedItems, removeItem, clearItems } = useSelectedItemsStore();
 
     const handleItemClick = (item: { title: string; content: string }) => {
         if (onAnalyzeItem) {
-            const analysisText = `${ANALYSIS_PROMPT}\n\nTitle: ${item.title}\n\nContent: ${item.content}`;
+            const cleanedContent = formatContent(`${item.title}\n\n${item.content}`);
+            const analysisText = `${ANALYSIS_PROMPT}\n\nTitle: ${item.title}\n\nContent: ${cleanedContent}`;
             onAnalyzeItem(item.title, analysisText);
         }
     };
 
     const handleAnalyzeAll = () => {
         if (onAnalyzeAll && selectedItems.length > 0) {
-            const combinedText = `${MULTI_ANALYSIS_PROMPT}\n\n${selectedItems.map((item, index) => (
-                `${index + 1}. Title: ${item.title}\n   Content: ${item.content}`
-            )).join('\n\n')}`;
+            const combinedText = `${MULTI_ANALYSIS_PROMPT}\n\n${selectedItems.map((item, index) => {
+                const cleanedContent = formatContent(`${item.title}\n\n${item.content}`);
+                return `${index + 1}. Title: ${item.title}\n   Content: ${cleanedContent}`;
+            }).join('\n\n')}`;
             onAnalyzeAll(selectedItems.map(item => ({ title: item.title, content: combinedText })));
+        }
+    };
+
+    const handleSendToChat = () => {
+        if (onSendToChat && selectedItems.length > 0) {
+            const combinedText = selectedItems.map((item, index) => {
+                const cleanedContent = formatContent(`${item.title}\n\n${item.content}`);
+                return `Article ${index + 1}:\n${cleanedContent}`;
+            }).join('\n\n');
+            onSendToChat(combinedText);
         }
     };
 
@@ -35,18 +51,32 @@ export const SelectedItemsSidebar = ({ onAnalyzeItem, onAnalyzeAll }: SelectedIt
         <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="w-64 bg-background/95 backdrop-blur-xl border-r border-border flex flex-col h-full relative"
+            className="w-64 pt-12 bg-background/95 backdrop-blur-xl border-r border-border flex flex-col h-full relative"
         >
-            <div className="p-4 border-b border-border bg-background/50">
+            <div className="px-1 py-2.5 border-b border-border bg-background/50">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-foreground/90 flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-primary/70" />
-                        <span>Selected</span>
-                        <span className="text-sm text-muted-foreground">({selectedItems.length})</span>
-                    </h3>
-                    <div className="flex items-center gap-2">
+
+                    <div className="flex flex-row items-center gap-2 justify-between w-full">
+                        <Link href="/newsletter">
+                            <Button variant="ghost">
+                                AI News
+                            </Button>
+                        </Link>
+                        <div className="flex flex-row items-center gap-2">
                         {selectedItems.length > 0 && (
                             <>
+                                <motion.button
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleSendToChat}
+                                    className="p-1.5 rounded-full bg-primary/10 hover:bg-primary/20 
+                                            transition-colors group"
+                                    title="Send all to chat"
+                                >
+                                    <Send className="w-4 h-4 text-primary group-hover:text-primary/90 transition-colors" />
+                                </motion.button>
                                 <motion.button
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -72,11 +102,12 @@ export const SelectedItemsSidebar = ({ onAnalyzeItem, onAnalyzeAll }: SelectedIt
                                 </motion.button>
                             </>
                         )}
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+            <div className="flex-1 flex flex-col overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                 <AnimatePresence mode="popLayout">
                     {selectedItems.length === 0 ? (
                         <motion.div 
@@ -133,10 +164,7 @@ export const SelectedItemsSidebar = ({ onAnalyzeItem, onAnalyzeAll }: SelectedIt
                                     <div 
                                         className="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed"
                                         dangerouslySetInnerHTML={{ 
-                                            __html: item.content.replace(
-                                                /\*\*(.*?)\*\*/g, 
-                                                '<span class="text-foreground/80 font-medium">$1</span>'
-                                            )
+                                            __html: formatContent(item.content)
                                         }} 
                                     />
                                 )}
@@ -153,6 +181,12 @@ export const SelectedItemsSidebar = ({ onAnalyzeItem, onAnalyzeAll }: SelectedIt
 
             {/* Gradient fade at bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+            
+            <h3 className="text-sm font-medium text-foreground/90 flex items-center gap-2 p-4 relative">
+                <FileText className="w-4 h-4 text-primary/70" />
+                <span>Selected</span>
+                <span className="text-sm text-muted-foreground">({selectedItems.length})</span>
+            </h3>
         </motion.div>
     );
 }; 

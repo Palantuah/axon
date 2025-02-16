@@ -302,37 +302,93 @@ const HomeContent = () => {
     );
 
     return (
-        <div className="flex h-screen bg-background">
+        <div className="flex h-screen overflow-hidden bg-background">
             <SelectedItemsSidebar 
                 onAnalyzeItem={handleAnalyzeItem}
                 onAnalyzeAll={handleAnalyzeAll}
             />
-            <div className="flex-1 flex flex-col !font-sans items-center text-foreground transition-all duration-500 relative">
-                <GradientBackground />
-                <Navbar hasSubmitted={hasSubmitted} />
+            <div className="flex-1 flex flex-col overflow-auto">
+                <div className="flex-1 flex flex-col !font-sans items-center text-foreground transition-all duration-500 relative">
+                    <GradientBackground />
+                    <Navbar hasSubmitted={hasSubmitted} />
 
-                <div
-                    className={`w-full p-2 sm:p-4 z-20 ${
-                        hasSubmitted ? 'mt-20 sm:mt-16' : 'flex-1 flex items-center justify-center'
-                    }`}
-                >
                     <div
-                        className={`w-full max-w-[90%] !font-sans sm:max-w-2xl space-y-6 p-0 mx-auto transition-all duration-300 flex flex-col`}
+                        className={`w-full p-2 sm:p-4 z-20 ${
+                            hasSubmitted ? 'mt-20 sm:mt-16' : 'flex-1 flex items-center justify-center'
+                        }`}
                     >
-                        {!hasSubmitted && (
-                            <div className="text-center !font-sans">
-                                <h1 className="text-2xl sm:text-4xl mb-6 text-foreground font-syne">
-                                    Uncover truth in all dimensions
-                                </h1>
-                            </div>
-                        )}
-                        <AnimatePresence>
+                        <div
+                            className={`w-full max-w-[90%] !font-sans sm:max-w-2xl space-y-6 p-0 mx-auto transition-all duration-300 flex flex-col`}
+                        >
                             {!hasSubmitted && (
+                                <div className="text-center !font-sans">
+                                    <h1 className="text-2xl sm:text-4xl mb-6 text-foreground font-syne">
+                                        Uncover truth in all dimensions
+                                    </h1>
+                                </div>
+                            )}
+                            <AnimatePresence>
+                                {!hasSubmitted && (
+                                    <motion.div
+                                        initial={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 20 }}
+                                        transition={{ duration: 0.5 }}
+                                        className="!mt-4"
+                                    >
+                                        <FormComponent
+                                            input={input}
+                                            setInput={setInput}
+                                            attachments={attachments}
+                                            setAttachments={setAttachments}
+                                            hasSubmitted={hasSubmitted}
+                                            setHasSubmitted={setHasSubmitted}
+                                            isLoading={isLoading}
+                                            handleSubmit={handleSubmit}
+                                            fileInputRef={fileInputRef}
+                                            inputRef={inputRef}
+                                            stop={stop}
+                                            messages={memoizedMessages}
+                                            append={append}
+                                            selectedModel={selectedModel}
+                                            setSelectedModel={handleModelChange}
+                                            resetSuggestedQuestions={resetSuggestedQuestions}
+                                            lastSubmittedQueryRef={lastSubmittedQueryRef}
+                                            selectedGroup={selectedGroup}
+                                            setSelectedGroup={setSelectedGroup}
+                                            showExperimentalModels={true}
+                                        />
+                                        {memoizedSuggestionCards}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <MessageList
+                                messages={memoizedMessages}
+                                suggestedQuestions={suggestedQuestions}
+                                handleSuggestedQuestionClick={handleSuggestedQuestionClick}
+                                isEditingMessage={isEditingMessage}
+                                editingMessageIndex={editingMessageIndex}
+                                input={input}
+                                setInput={setInput}
+                                setIsEditingMessage={setIsEditingMessage}
+                                setEditingMessageIndex={setEditingMessageIndex}
+                                handleMessageEdit={handleMessageEdit}
+                                handleMessageUpdate={handleMessageUpdate}
+                                isLoading={isLoading}
+                                lastUserMessageIndex={lastUserMessageIndex}
+                                data={data}
+                            />
+                            <div ref={bottomRef} />
+                        </div>
+
+                        <AnimatePresence>
+                            {hasSubmitted && (
                                 <motion.div
-                                    initial={{ opacity: 1, y: 0 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: 20 }}
                                     transition={{ duration: 0.5 }}
-                                    className="!mt-4"
+                                    className="fixed bottom-4 left-64 right-0 w-full max-w-[90%] sm:max-w-2xl mx-auto"
                                 >
                                     <FormComponent
                                         input={input}
@@ -346,7 +402,7 @@ const HomeContent = () => {
                                         fileInputRef={fileInputRef}
                                         inputRef={inputRef}
                                         stop={stop}
-                                        messages={memoizedMessages}
+                                        messages={messages}
                                         append={append}
                                         selectedModel={selectedModel}
                                         setSelectedModel={handleModelChange}
@@ -354,66 +410,12 @@ const HomeContent = () => {
                                         lastSubmittedQueryRef={lastSubmittedQueryRef}
                                         selectedGroup={selectedGroup}
                                         setSelectedGroup={setSelectedGroup}
-                                        showExperimentalModels={true}
+                                        showExperimentalModels={false}
                                     />
-                                    {memoizedSuggestionCards}
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
-                        <MessageList
-                            messages={memoizedMessages}
-                            suggestedQuestions={suggestedQuestions}
-                            handleSuggestedQuestionClick={handleSuggestedQuestionClick}
-                            isEditingMessage={isEditingMessage}
-                            editingMessageIndex={editingMessageIndex}
-                            input={input}
-                            setInput={setInput}
-                            setIsEditingMessage={setIsEditingMessage}
-                            setEditingMessageIndex={setEditingMessageIndex}
-                            handleMessageEdit={handleMessageEdit}
-                            handleMessageUpdate={handleMessageUpdate}
-                            isLoading={isLoading}
-                            lastUserMessageIndex={lastUserMessageIndex}
-                            data={data}
-                        />
-                        <div ref={bottomRef} />
                     </div>
-
-                    <AnimatePresence>
-                        {hasSubmitted && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 20 }}
-                                transition={{ duration: 0.5 }}
-                                className="fixed bottom-4 left-64 right-0 w-full max-w-[90%] sm:max-w-2xl mx-auto"
-                            >
-                                <FormComponent
-                                    input={input}
-                                    setInput={setInput}
-                                    attachments={attachments}
-                                    setAttachments={setAttachments}
-                                    hasSubmitted={hasSubmitted}
-                                    setHasSubmitted={setHasSubmitted}
-                                    isLoading={isLoading}
-                                    handleSubmit={handleSubmit}
-                                    fileInputRef={fileInputRef}
-                                    inputRef={inputRef}
-                                    stop={stop}
-                                    messages={messages}
-                                    append={append}
-                                    selectedModel={selectedModel}
-                                    setSelectedModel={handleModelChange}
-                                    resetSuggestedQuestions={resetSuggestedQuestions}
-                                    lastSubmittedQueryRef={lastSubmittedQueryRef}
-                                    selectedGroup={selectedGroup}
-                                    setSelectedGroup={setSelectedGroup}
-                                    showExperimentalModels={false}
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
             </div>
         </div>

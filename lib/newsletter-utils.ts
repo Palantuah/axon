@@ -194,7 +194,7 @@ function parseMetadataBlock(block: string): z.infer<typeof MetadataSchema> {
   return MetadataSchema.parse(metadata);
 }
 
-function formatContent(content: string): string {
+export function formatContent(content: string): string {
   let formatted = content
     // Normalize line endings
     .replace(/\r\n/g, '\n')

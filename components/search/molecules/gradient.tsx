@@ -17,7 +17,7 @@ export const GradientBackground = ({
             )}
         >
             <div
-                className="absolute inset-0 dark:hidden"
+                className="absolute inset-0 dark:hidden pointer-events-none"
                 style={{
                     background: `
                         linear-gradient(
