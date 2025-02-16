@@ -5,8 +5,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { login, signup, oauthSignIn } from '@/app/login/actions'; // Import the server action
+import { CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { login, signup, oauthSignIn } from '@/app/login/actions';
+import { Input } from '@/components/ui/input';
+import { BackgroundBeams } from '@/components/auth/background-beams';
+import { CardSpotlight } from '@/components/ui/card-spotlight';
 
 interface AuthFormProps {
     className?: string;
@@ -18,7 +22,7 @@ export function MantraAuthForm({ className }: AuthFormProps) {
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
         try {
-            await oauthSignIn(); // Call the server action
+            await oauthSignIn();
         } catch (error) {
             toast.error('Unable to connect with Google');
             console.error('Google sign-in error:', error);
@@ -27,86 +31,193 @@ export function MantraAuthForm({ className }: AuthFormProps) {
     };
 
     return (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-96 max-w-md mx-auto">
-            <Card className="border-border/40 shadow-lg relative bg-white dark:bg-black p-4 md:p-8 h-fit flex flex-col gap-6">
-                <CardHeader className="space-y-2 text-center p-0">
-                    <h1 className="text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-200">
-                        Welcome to Axon
-                    </h1>
-                </CardHeader>
-
-                <CardContent className="space-y-6 p-0">
-                    <form className="max-w-md mx-auto p-6 rounded-2xl shadow-lg backdrop-blur-md border border-white/20">
-                        <div className="mb-4">
-                            <label htmlFor="email" className="block text-sm font-medium">
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                required
-                                className="mt-1 w-full p-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2"
-                                placeholder="Enter your email"
-                            />
-                        </div>
-
-                        <div className="mb-6">
-                            <label htmlFor="password" className="block text-sm font-medium">
-                                Password
-                            </label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                                className="mt-1 w-full p-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2"
-                                placeholder="Enter your password"
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between gap-3">
-                            <button
-                                formAction={login}
-                                className="w-full px-4 py-2 rounded-lg shadow-md bg-gray-200 hover:bg-gray-300 text-gray-700"
-                            >
-                                Log in
-                            </button>
-                            <button
-                                formAction={signup}
-                                className="w-full px-4 py-2 rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 text-white"
-                            >
-                                Sign up
-                            </button>
-                        </div>
-                    </form>
-                    ``{' '}
-                    {/* 
-                    <div className="flex flex-col space-y-3">
-                        <button
-                            formAction={oauthSignIn}
-                            disabled={isLoading}
-                            className="relative flex items-center justify-center w-full h-11 px-4 space-x-2 rounded-md bg-gray-50 dark:bg-zinc-900 text-sm font-medium text-neutral-700 dark:text-neutral-300 shadow-input hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+        <>
+            <BackgroundBeams className="opacity-15" />
+            <motion.div 
+                initial={{ opacity: 0, y: 10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                className="w-full max-w-md mx-auto relative z-10"
+            >
+                <CardSpotlight 
+                    className="p-8"
+                    radius={500}
+                    color="#262626"
+                >
+                    <CardHeader className="space-y-3 text-center p-0 mb-8">
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="relative"
                         >
-                            <span>Continue with Google</span>
-                        </button>
-                    </div> */}
-                </CardContent>
+                            <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground/60 to-foreground">
+                                Welcome to Axon
+                            </h1>
+                        </motion.div>
+                    </CardHeader>
 
-                <CardFooter className="p-0">
-                    <p className="text-center text-sm text-neutral-600 dark:text-neutral-400 w-full">
-                        By continuing, you agree to our{' '}
-                        <Link href="/terms" className="font-normal text-primary hover:underline">
-                            Terms of Service
-                        </Link>{' '}
-                        and{' '}
-                        <Link href="/privacy" className="font-normal text-primary hover:underline">
-                            Privacy Policy
-                        </Link>
-                    </p>
-                </CardFooter>
-            </Card>
-        </motion.div>
+                    <CardContent className="space-y-8 p-0">
+                        <form className="space-y-6">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label htmlFor="email" className="text-sm font-medium text-neutral-300">
+                                        Email
+                                    </label>
+                                    <div className="relative group">
+                                        <motion.div
+                                            className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-violet-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity blur-md"
+                                            animate={{
+                                                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                                            }}
+                                            transition={{
+                                                duration: 5,
+                                                repeat: Infinity,
+                                                ease: 'linear',
+                                            }}
+                                        />
+                                        <Input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            required
+                                            placeholder="Enter your email"
+                                            className="relative bg-background/40"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="password" className="text-sm font-medium text-neutral-300">
+                                        Password
+                                    </label>
+                                    <div className="relative group">
+                                        <motion.div
+                                            className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-blue-500/50 to-violet-500/50 opacity-0 group-hover:opacity-100 transition-opacity blur-md"
+                                            animate={{
+                                                backgroundPosition: ['100% 50%', '0% 50%', '100% 50%'],
+                                            }}
+                                            transition={{
+                                                duration: 5,
+                                                repeat: Infinity,
+                                                ease: 'linear',
+                                            }}
+                                        />
+                                        <Input
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            required
+                                            placeholder="Enter your password"
+                                            className="relative bg-background/40"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                <Button
+                                    formAction={login}
+                                    variant="outline"
+                                    className="relative group w-full h-11 bg-background/60 border-white/10 hover:bg-background/5 hover:border-white/20 transition-all duration-200 backdrop-blur-sm"
+                                >
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-md"
+                                        animate={{
+                                            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: 'linear',
+                                        }}
+                                    />
+                                    <span className="relative z-10 text-lg font-semibold">Log in</span>
+                                </Button>
+                                <Button
+                                    formAction={signup}
+                                    className="relative group w-full h-11 bg-gradient-to-r from-violet-500/80 via-blue-500/80 to-violet-500/80 hover:from-violet-500 hover:via-blue-500 hover:to-violet-500 text-white transition-all duration-200"
+                                >
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-violet-500 via-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-md"
+                                        animate={{
+                                            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: 'linear',
+                                        }}
+                                    />
+                                    <span className="relative z-10 text-md font-semibold">Sign up</span>
+                                </Button>
+                            </div>
+                        </form>
+
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-white/[0.08]"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 text-foreground/60 font-medium">or continue with</span>
+                            </div>
+                        </div>
+
+                        <Button
+                            onClick={handleGoogleSignIn}
+                            disabled={isLoading}
+                            variant="outline"
+                            className="relative group w-full h-11 bg-background/60 border-white/10 hover:bg-white/5 hover:border-white/20 transition-all duration-200"
+                        >
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-violet-500/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-md"
+                                animate={{
+                                    backgroundPosition: ['100% 50%', '0% 50%', '100% 50%'],
+                                }}
+                                transition={{
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    ease: 'linear',
+                                }}
+                            />
+                            <div className="relative z-10 flex items-center justify-center gap-2">
+                                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                    <path
+                                        fill="currentColor"
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                    />
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                    />
+                                    <path
+                                        fill="currentColor"
+                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                    />
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                    />
+                                </svg>
+                                <span>Continue with Google</span>
+                            </div>
+                        </Button>
+                    </CardContent>
+
+                    <CardFooter className="p-0 mt-8">
+                        <p className="text-center text-sm text-neutral-500 w-full">
+                            By continuing, you agree to our{' '}
+                            <Link href="/terms" className="text-neutral-300 hover:text-white transition-colors">
+                                Terms of Service
+                            </Link>{' '}
+                            and{' '}
+                            <Link href="/privacy" className="text-neutral-300 hover:text-white transition-colors">
+                                Privacy Policy
+                            </Link>
+                        </p>
+                    </CardFooter>
+                </CardSpotlight>
+            </motion.div>
+        </>
     );
 }
 

@@ -1,11 +1,15 @@
 "use client";
 import { motion } from "framer-motion";
 import React, { memo } from "react";
+import { useTheme } from 'next-themes';
 
 import { cn } from "@/lib/utils";
 
 export const BackgroundBeams = memo(
   ({ className }: { className?: string }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
     const paths = [
       "M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875",
       "M-373 -197C-373 -197 -305 208 159 335C623 462 691 867 691 867",
@@ -61,7 +65,7 @@ export const BackgroundBeams = memo(
     return (
       <div
         className={cn(
-          "absolute  h-full w-full inset-0  [mask-size:40px] [mask-repeat:no-repeat] flex items-center justify-center",
+          "absolute  h-full w-full inset-0  [mask-size:40px] [mask-repeat:no-repeat] flex items-center justify-center pointer-events-none",
           className
         )}
       >
@@ -85,7 +89,7 @@ export const BackgroundBeams = memo(
               key={`path-` + index}
               d={path}
               stroke={`url(#linearGradient-${index})`}
-              strokeOpacity="0.4"
+              strokeOpacity={isDark ? "0.4" : "0.2"}
               strokeWidth="0.5"
             ></motion.path>
           ))}
@@ -113,10 +117,10 @@ export const BackgroundBeams = memo(
                   delay: Math.random() * 10,
                 }}
               >
-                <stop stopColor="#18CCFC" stopOpacity="0"></stop>
-                <stop stopColor="#18CCFC"></stop>
-                <stop offset="32.5%" stopColor="#6344F5"></stop>
-                <stop offset="100%" stopColor="#AE48FF" stopOpacity="0"></stop>
+                <stop stopColor={isDark ? "#18CCFC" : "#0EA5E9"} stopOpacity="0"></stop>
+                <stop stopColor={isDark ? "#18CCFC" : "#0EA5E9"}></stop>
+                <stop offset="32.5%" stopColor={isDark ? "#6344F5" : "#4F46E5"}></stop>
+                <stop offset="100%" stopColor={isDark ? "#AE48FF" : "#9333EA"} stopOpacity="0"></stop>
               </motion.linearGradient>
             ))}
 
@@ -128,8 +132,8 @@ export const BackgroundBeams = memo(
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(352 34) rotate(90) scale(555 1560.62)"
             >
-              <stop offset="0.0666667" stopColor="var(--neutral-300)"></stop>
-              <stop offset="0.243243" stopColor="var(--neutral-300)"></stop>
+              <stop offset="0.0666667" stopColor={isDark ? "hsl(var(--muted))" : "hsl(var(--muted-foreground))"}></stop>
+              <stop offset="0.243243" stopColor={isDark ? "hsl(var(--muted))" : "hsl(var(--muted-foreground))"}></stop>
               <stop offset="0.43594" stopColor="white" stopOpacity="0"></stop>
             </radialGradient>
           </defs>

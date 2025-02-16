@@ -16,7 +16,7 @@ export default function AboutPage() {
     const router = useRouter();
 
     return (
-        <div className="min-h-screen bg-background overflow-hidden">
+        <div className="min-h-screen bg-background flex flex-col size-full">
             <Header />
             <main>
                 <Hero />

@@ -7,28 +7,43 @@ import { useState } from 'react';
 import { Cover } from '@/components/ui/cover';
 import { GradientBackground } from '@/components/ui/gradient-background';
 
-const fadeUpVariants = {
-    hidden: {
-        y: 20,
-        opacity: 0,
-    },
-    visible: {
-        y: 0,
-        opacity: 1,
-        transition: {
-            duration: 0.5,
-            ease: [0.32, 0.72, 0, 1],
-        },
-    },
-};
-
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.15,
+            staggerChildren: 0.2,
             delayChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: {
+        opacity: 0,
+        y: 20,
+    },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.8,
+            ease: [0.32, 0.72, 0, 1],
+        },
+    },
+};
+
+const gradientVariants = {
+    hidden: {
+        opacity: 0,
+        scale: 0.95,
+    },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            duration: 1,
+            ease: [0.32, 0.72, 0, 1],
         },
     },
 };
@@ -37,79 +52,89 @@ export const Hero = () => {
     const [query, setQuery] = useState('');
     const { scrollY } = useScroll();
 
-    // Smoother fade out for content only, not background
     const contentOpacity = useTransform(scrollY, [0, 400], [1, 0]);
     const contentScale = useTransform(scrollY, [0, 400], [1, 0.95]);
+    const backgroundY = useTransform(scrollY, [0, 400], ['0%', '20%']);
 
     return (
-        <div className="relative z-0 flex flex-col items-center justify-center pt-16">
-            {/* Move GradientBackground to z-index 0 */}
-            <GradientBackground />
-            {/* Content with fade effect - increase z-index */}
+        <div className="relative z-0 flex flex-col items-center justify-center min-h-screen overflow-hidden">
+            <motion.div className="absolute inset-0 z-0" style={{ y: backgroundY }}>
+                <GradientBackground />
+            </motion.div>
+
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
                 style={{ opacity: contentOpacity, scale: contentScale }}
-                className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 relative z-10"
+                className="w-full px-4 relative z-10 pt-16"
             >
-                {/* Main content - remove redundant z-10 since parent already has it */}
-                <div className="max-w-5xl mx-auto text-center space-y-10 relative">
-                    <motion.div variants={fadeUpVariants} className="space-y-6">
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-none text-foreground">
+                <div className="max-w-5xl mx-auto text-center space-y-12">
+                    <motion.div variants={containerVariants} className="space-y-8">
+                        <motion.h1
+                            variants={itemVariants}
+                            className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-none text-foreground"
+                        >
                             Discover Insights Through
-                        </h1>
-                        <div>
+                        </motion.h1>
+
+                        <motion.div variants={gradientVariants}>
                             <Cover>
-                                {' '}
                                 <span
-                                    className="bg-clip-text text-transparent bg-gradient-to-r from-violet-500/90 via-blue-500/90 to-emerald-500/90
-                             px-4 block text-5xl sm:text-6xl lg:text-7xl font-bold"
+                                    className="bg-clip-text text-transparent bg-[length:400%_400%] bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 px-4 block text-5xl sm:text-6xl lg:text-7xl font-bold"
+                                    style={{
+                                        animation: 'gradient-shift 8s ease infinite',
+                                    }}
                                 >
                                     Unbiased Analysis
                                 </span>
                             </Cover>
-                        </div>
+                        </motion.div>
 
-                        <p className="text-muted-foreground text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
+                        <motion.p
+                            variants={itemVariants}
+                            className="text-muted-foreground text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed"
+                        >
                             Bridge the gap between information complexity and clarity with rigorous research and
                             data-driven insights.
-                        </p>
+                        </motion.p>
                     </motion.div>
 
                     <motion.div
-                        variants={fadeUpVariants}
+                        variants={itemVariants}
                         className="flex items-center gap-3 max-w-2xl mx-auto w-full relative group"
                     >
                         <div className="relative flex-1 group">
-                            <div
-                                className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/30 to-blue-500/20 rounded-xl blur opacity-0 
-                            group-hover:opacity-100 transition duration-500"
-                            ></div>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                whileHover={{ opacity: 1 }}
+                                className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/30 to-blue-500/20 rounded-xl blur"
+                                transition={{ duration: 0.3 }}
+                            />
                             <div className="relative">
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/0 to-blue-500/0 group-focus-within:from-violet-500/30 group-focus-within:to-blue-500/30 rounded-xl blur transition-all duration-300" />
                                 <input
                                     type="text"
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
                                     placeholder="What would you like to analyze?"
-                                    className="w-full pl-6 pr-12 py-3 rounded-xl bg-background/20 border border-border/10 backdrop-blur-md
-                            text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/20
-                            transition-all duration-300"
+                                    className="relative w-full pl-6 pr-12 py-3 rounded-xl bg-background/20 border border-border/10 backdrop-blur-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
                                 />
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-lg bg-background/5 border border-border/10
-                           hover:bg-background/10 transition-colors duration-200"
-                                >
-                                    <MagnifyingGlassIcon className="w-5 h-5 text-foreground" />
-                                </motion.button>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="p-2.5 rounded-lg bg-background/5 border border-border/10 hover:bg-background/10 transition-colors duration-200 transform-gpu"
+                                    >
+                                        <MagnifyingGlassIcon className="w-5 h-5 text-foreground" />
+                                    </motion.button>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
 
                     <motion.div
-                        variants={fadeUpVariants}
+                        variants={itemVariants}
                         className="flex flex-wrap items-center justify-center gap-4 text-sm"
                     >
                         {['market analysis', 'competitor research', 'trend forecasting', 'data insights'].map(
@@ -130,6 +155,20 @@ export const Hero = () => {
                     </motion.div>
                 </div>
             </motion.div>
+
+            <style jsx global>{`
+                @keyframes gradient-shift {
+                    0% {
+                        background-position: 0% 50%;
+                    }
+                    50% {
+                        background-position: 100% 50%;
+                    }
+                    100% {
+                        background-position: 0% 50%;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

@@ -1,5 +1,10 @@
 import type { Config } from "tailwindcss";
 import { fontFamily } from 'tailwindcss/defaultTheme';
+ 
+const {
+  default: flattenColorPalette,
+} = require("tailwindcss/lib/util/flattenColorPalette");
+ 
 
 const config = {
   darkMode: ["class"],
@@ -33,6 +38,11 @@ const config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        gradient: {
+          start: "rgb(139, 92, 246)", // violet-500
+          middle: "rgb(59, 130, 246)", // blue-500
+          end: "rgb(16, 185, 129)",   // emerald-500
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -61,6 +71,9 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      boxShadow: {
+        input: `0px 2px 3px -1px rgba(0,0,0,0.1), 0px 1px 0px 0px rgba(25,28,33,0.02), 0px 0px 0px 1px rgba(25,28,33,0.08)`,
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -101,8 +114,21 @@ const config = {
   plugins: [
     require("tailwindcss-animate"),
     require("@tailwindcss/typography"),
-    require("tailwind-scrollbar")
+    require("tailwind-scrollbar"),
+    addVariablesForColors
   ],
 } satisfies Config
+
+ 
+function addVariablesForColors({ addBase, theme }: any) {
+  let allColors = flattenColorPalette(theme("colors"));
+  let newVars = Object.fromEntries(
+    Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
+  );
+ 
+  addBase({
+    ":root": newVars,
+  });
+}
 
 export default config

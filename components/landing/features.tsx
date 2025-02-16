@@ -3,7 +3,7 @@ import { Brain, Search, Image, Command, GraduationCap, Sparkles } from 'lucide-r
 import HalftoneWaves from '@/components/ui/halftone-waves';
 export function Features() {
     return (
-        <div className="px-4 h-full relative z-10 overflow-hidden">
+        <div className="px-4 h-fit relative z-10 overflow-hidden">
             <HalftoneWaves />
             <motion.div
                 className="relative max-w-5xl mx-auto z-20 flex flex-col py-16 gap-12"

@@ -71,7 +71,10 @@ export default function RootLayout({
         <NuqsAdapter>
           <Providers>
             <Toaster position="top-center" richColors />
+            <main className="flex flex-col items-center justify-center h-screen w-full overflow-y-auto">
+
             {children}
+            </main>
           </Providers>
         </NuqsAdapter>
         <Analytics />

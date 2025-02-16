@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useRef } from 'react'
+import { useTheme } from 'next-themes'
 
 export default function Component() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { theme } = useTheme()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -43,14 +45,18 @@ export default function Component() {
 
           ctx.beginPath()
           ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(255, 255, 255, ${waveOffset * 0.05})`
+          ctx.fillStyle = theme === 'dark' 
+            ? `rgba(255, 255, 255, ${waveOffset * 0.05})`
+            : `rgba(0, 0, 0, ${waveOffset * 0.05})`
           ctx.fill()
         }
       }
     }
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
+      ctx.fillStyle = theme === 'dark' 
+        ? 'rgba(0, 0, 0, 0.1)' 
+        : 'rgba(255, 255, 255, 0.1)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       drawHalftoneWave()
@@ -68,8 +74,8 @@ export default function Component() {
       cancelAnimationFrame(animationFrameId)
       window.removeEventListener('resize', resizeCanvas)
     }
-  }, [])
+  }, [theme])
 
-  return <canvas ref={canvasRef} className="w-full h-screen inset-0 absolute z-0 blur-sm" />
+  return <canvas ref={canvasRef} className="w-full h-screen inset-0 absolute z-0 blur-sm bg-background" />
 }
 

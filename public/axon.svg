@@ -1,11 +1,11 @@
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 100" ">
-  <path d="M15 80 L50 15 L85 80 L65 80 L50 45 L35 80 Z" fill="white"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 100" width="150" height="150">
+  <path d="M15 80 L50 15 L85 80 L65 80 L50 45 L35 80 Z" fill="currentColor"/>
   
-  <path d="M90 15 L125 50 L90 85 L110 85 L125 70 L140 85 L160 85 L125 50 L160 15 L140 15 L125 30 L110 15 Z" fill="white"/>
+  <path d="M90 15 L125 50 L90 85 L110 85 L125 70 L140 85 L160 85 L125 50 L160 15 L140 15 L125 30 L110 15 Z" fill="currentColor"/>
   
-  <path d="M170 50 A35 35 0 0 1 240 50 A35 35 0 0 1 170 50 Z M185 50 A20 20 0 0 1 225 50 A20 20 0 0 1 185 50 Z" 
-      fill="white"
-      fillRule="evenodd"/>
+  <path d="M170 50 A35 35 0 0 1 240 50 A35 35 0 0 1 170 50 M205 30 A20 20 0 1 0 205 70 A20 20 0 1 0 205 30" 
+      fill="currentColor"/>
   
-  <path d="M250 85 L250 15 L270 15 L320 70 L320 15 L340 15 L340 85 L320 85 L270 30 L270 85 Z" fill="white"/>
+  <path d="M250 85 L250 15 L275 15 L305 65 L305 15 L325 15 L325 85 L300 85 L270 35 L270 85 Z" fill="currentColor"/>
+ 
 </svg>
