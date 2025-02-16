@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     siteName: "Axon",
   },
   keywords: [
+    "Palantuah",
+    "Palantuah Labs",
+    "Treehacks",
     "Axon",
     "axon",
     "axon.app",
@@ -33,11 +36,13 @@ export const metadata: Metadata = {
     "AI Search Engine",
     "mplx.run",
     "mplx ai",
-    "zaid mukaddam",
     "axon.how",
     "search engine",
     "AI",
     "perplexity",
+    "Aadvik Vashist",
+    "Noah Pan Stier",
+    "Vedant Srinivas",
   ]
 };
 

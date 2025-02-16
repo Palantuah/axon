@@ -29,7 +29,6 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import WeatherChart from '@/components/weather-chart';
-import { useMediaQuery } from '@/hooks/use-media-query';
 import { cn, SearchGroupId } from '@/lib/utils';
 import { Wave } from "@foobar404/wave";
 import { CheckCircle, CurrencyDollar, Flag, GithubLogo, Info, RoadHorizon, SoccerBall, TennisBall, XLogo } from '@phosphor-icons/react';
@@ -101,6 +100,7 @@ import { atomDark, vs } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Tweet } from 'react-tweet';
 import { toast } from 'sonner';
+import { PreferencesModal } from '@/components/preferences-modal';
 import {
     fetchMetadata,
     generateSpeech,
@@ -112,9 +112,7 @@ import { ReasoningUIPart, ToolInvocationUIPart, TextUIPart } from '@ai-sdk/ui-ut
 
 import {
     Drawer,
-    DrawerClose,
     DrawerContent,
-    DrawerFooter,
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
@@ -1226,7 +1224,7 @@ const HomeContent = () => {
                     </Link>
                 </div>
                 <div className='flex items-center space-x-4'>
-                
+                    <PreferencesModal />
                     <AboutButton />
                     <ThemeToggle />
                 </div>
