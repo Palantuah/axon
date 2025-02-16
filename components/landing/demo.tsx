@@ -15,9 +15,9 @@ export function Demo() {
                     viewport={{ once: true }}
                 >
                     <div className="text-center space-y-4 mb-16">
-                        <h2 className="text-3xl font-bold">RAG & Search Grounding</h2>
+                        <h2 className="text-3xl font-bold">Content Synthesis in Action</h2>
                         <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
-                            Watch how Axon combines RAG and search grounding to deliver accurate, up-to-date answers from reliable sources.
+                            Watch how we transform your interests into personalized newsletters and podcasts by analyzing multiple trusted sources.
                         </p>
                     </div>
 
@@ -26,9 +26,9 @@ export function Demo() {
                         <div className="flex items-start gap-4">
                             <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 flex-shrink-0" />
                             <div className="flex-1 space-y-2">
-                                <p className="text-sm text-neutral-500">Query</p>
+                                <p className="text-sm text-neutral-500">Your Interests</p>
                                 <p className="text-neutral-900 dark:text-neutral-100">
-                                    Explain quantum computing and its real-world applications
+                                    AI technology, startup news, and venture capital trends
                                 </p>
                             </div>
                         </div>
@@ -40,26 +40,26 @@ export function Demo() {
                             </div>
                             <div className="flex-1 space-y-4">
                                 <div className="space-y-2">
-                                    <p className="text-sm text-neutral-500">Processing with</p>
+                                    <p className="text-sm text-neutral-500">Creating your content</p>
                                     <TextLoop interval={1.5}>
                                         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                                            🔍 Retrieving relevant information...
+                                            🔍 Finding relevant newsletters and sources...
                                         </p>
                                         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                                            📚 Processing search results...
+                                            📚 Analyzing and combining content...
                                         </p>
                                         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                                            🤖 Generating response...
+                                            🎙️ Converting to podcast format...
                                         </p>
                                         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                                            ✨ Enhancing with context...
+                                            ✨ Personalizing delivery format...
                                         </p>
                                     </TextLoop>
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-sm text-neutral-500">Generating response</p>
+                                    <p className="text-sm text-neutral-500">Synthesizing content</p>
                                     <TextShimmer className="text-sm font-medium">
-                                        Combining insights from multiple sources for a comprehensive answer...
+                                        Creating your personalized newsletter and podcast episode...
                                     </TextShimmer>
                                 </div>
                             </div>
@@ -71,13 +71,13 @@ export function Demo() {
                                 <Check className="w-4 h-4 text-green-500" />
                             </div>
                             <div className="flex-1 space-y-2">
-                                <p className="text-sm text-neutral-500">Response Preview</p>
+                                <p className="text-sm text-neutral-500">Content Preview</p>
                                 <div className="prose prose-sm dark:prose-invert">
                                     <p className="text-neutral-900 dark:text-neutral-100">
-                                        Quantum computing is a revolutionary technology that harnesses quantum mechanics to solve complex problems...
+                                        Your weekly digest includes the latest AI breakthroughs, emerging startup trends, and key VC investments...
                                     </p>
                                     <div className="text-xs text-neutral-500 mt-2">
-                                        Sources: Nature Physics, IBM Research, MIT Technology Review
+                                        Sources: TechCrunch, VentureBeat, AI Weekly, Startup Digest, VC Newsletter
                                     </div>
                                 </div>
                             </div>

@@ -12,9 +12,9 @@ export function Features() {
                 viewport={{ once: true }}
             >
                 <div className="relative text-center space-y-4">
-                    <h2 className="text-3xl font-bold text-white">Advanced Search Features</h2>
+                    <h2 className="text-3xl font-bold text-white">Smart Content Synthesis</h2>
                     <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
-                        Experience a smarter way to search with AI-powered features that understand your queries better.
+                        Experience personalized newsletters and podcasts crafted from your preferred topics and trusted sources.
                     </p>
                 </div>
 
@@ -22,33 +22,33 @@ export function Features() {
                     {[
                         {
                             icon: Brain,
-                            title: 'Smart Understanding',
-                            description: 'Uses multiple AI models to better understand your questions',
+                            title: 'Topic Analysis',
+                            description: 'Advanced AI understands your interests and finds relevant content sources',
                         },
                         {
                             icon: Search,
-                            title: 'Comprehensive Search',
-                            description: 'Searches across multiple sources for complete answers',
-                        },
-                        {
-                            icon: Image,
-                            title: 'Image Understanding',
-                            description: 'Can understand and explain images you share',
+                            title: 'Multi-Source Synthesis',
+                            description: 'Combines content from numerous newsletters and publications into one digest',
                         },
                         {
                             icon: Command,
-                            title: 'Smart Calculations',
-                            description: 'Performs complex calculations and analysis in real-time',
-                        },
-                        {
-                            icon: GraduationCap,
-                            title: 'Research Assistant',
-                            description: 'Helps find and explain academic research',
+                            title: 'Audio Transformation',
+                            description: 'Converts written content into engaging podcast episodes',
                         },
                         {
                             icon: Sparkles,
-                            title: 'Natural Conversations',
-                            description: 'Responds in a clear, conversational way',
+                            title: 'Custom Formatting',
+                            description: 'Delivers content in your preferred style and format',
+                        },
+                        {
+                            icon: GraduationCap,
+                            title: 'Source Verification',
+                            description: 'Ensures all content comes from reliable and authoritative sources',
+                        },
+                        {
+                            icon: Image,
+                            title: 'Rich Media Integration',
+                            description: 'Includes relevant images, charts, and visualizations in your newsletter',
                         },
                     ].map((feature, i) => (
                         <motion.div

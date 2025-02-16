@@ -8,6 +8,7 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { Providers } from './providers';
+import { NewsletterProvider } from '@/components/providers/newsletter-provider';
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://axon.app"),
@@ -75,6 +76,7 @@ export default function RootLayout({
       <body className={`${GeistSans.variable} ${syne.variable} font-sans antialiased`} suppressHydrationWarning>
         <NuqsAdapter>
           <Providers>
+            <NewsletterProvider />
             <Toaster position="top-center" richColors />
             <main className="flex flex-col min-h-screen w-full">
               {children}

@@ -65,7 +65,7 @@ export function Header() {
                     'flex items-center justify-between',
                     'px-4 py-2',
                     roundedClass,
-                    isScrolled ? 'max-w-[600px] bg-background/40' : 'max-w-full bg-background/10'
+                    isScrolled ? 'max-w-[700px] bg-background/40' : 'max-w-full bg-background/10'
                 )}
             >
                 {/* Logo */}

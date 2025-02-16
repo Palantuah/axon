@@ -75,7 +75,7 @@ export const Hero = () => {
                             variants={itemVariants}
                             className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-none text-foreground"
                         >
-                            Discover Insights Through
+                            Your Interests, Transformed Into
                         </motion.h1>
 
                         <motion.div variants={gradientVariants}>
@@ -86,7 +86,7 @@ export const Hero = () => {
                                         animation: 'gradient-shift 8s ease infinite',
                                     }}
                                 >
-                                    Unbiased Analysis
+                                    Personalized Content
                                 </span>
                             </Cover>
                         </motion.div>
@@ -95,8 +95,7 @@ export const Hero = () => {
                             variants={itemVariants}
                             className="text-muted-foreground text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed"
                         >
-                            Bridge the gap between information complexity and clarity with rigorous research and
-                            data-driven insights.
+                            Tell us your interests, and we'll synthesize curated newsletters and engaging podcasts from the best sources across the web.
                         </motion.p>
                     </motion.div>
 
@@ -117,7 +116,7 @@ export const Hero = () => {
                                     type="text"
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="What would you like to analyze?"
+                                    placeholder="What topics interest you?"
                                     className="relative w-full pl-6 pr-12 py-3 rounded-xl bg-background/20 border border-border/10 backdrop-blur-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
                                 />
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -137,7 +136,7 @@ export const Hero = () => {
                         variants={itemVariants}
                         className="flex flex-wrap items-center justify-center gap-4 text-sm"
                     >
-                        {['market analysis', 'competitor research', 'trend forecasting', 'data insights'].map(
+                        {['tech news', 'startup insights', 'industry analysis', 'weekly digest', 'audio content'].map(
                             (tag, i) => (
                                 <motion.span
                                     key={tag}
