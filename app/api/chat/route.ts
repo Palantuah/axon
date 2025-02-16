@@ -1,6 +1,7 @@
 // /app/api/chat/route.ts
 import { getGroupConfig } from '@/app/actions';
 import { serverEnv } from '@/env/server';
+import{ openai} from '@ai-sdk/openai'
 import { xai } from '@ai-sdk/xai';
 import { anthropic } from '@ai-sdk/anthropic'
 import { groq } from '@ai-sdk/groq'
@@ -23,14 +24,13 @@ import { z } from 'zod';
 
 const axon = customProvider({
     languageModels: {
-        'axon-default': xai('grok-2-1212'),
-        'axon-grok-vision': xai('grok-2-vision-1212'),
+        'axon-default': openai('o3-mini-high'),
+        'axon-4o': openai('4o'),
         'axon-sonnet': anthropic('claude-3-5-sonnet-20241022'),
         'axon-r1': wrapLanguageModel({
             model: groq('deepseek-r1-distill-llama-70b'),
             middleware: extractReasoningMiddleware({ tagName: 'think' })
         }),
-        'axon-llama-groq': groq("llama-3.3-70b-versatile"),
     }
 })
 

@@ -65,7 +65,6 @@ const HomeContent = () => {
 
         const cached = localStorage.getItem(CACHE_KEY);
         if (!cached) return null;
-
         const parsedCache = JSON.parse(cached) as TrendingQueriesCache;
         const now = Date.now();
 

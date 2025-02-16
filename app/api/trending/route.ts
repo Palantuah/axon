@@ -134,18 +134,33 @@ export async function GET(req: Request) {
             return NextResponse.json([
                 {
                     icon: 'sparkles',
-                    text: 'What causes the Northern Lights?',
-                    category: 'science',
+                    text: 'Global Climate Agreement Reached',
+                    category: 'politics',
                 },
                 {
                     icon: 'code',
-                    text: 'Explain quantum computing',
+                    text: 'New AI Model Breaks Records',
                     category: 'tech',
                 },
                 {
                     icon: 'globe',
-                    text: 'Most beautiful places in Japan',
-                    category: 'travel',
+                    text: 'Stock Markets Hit All-Time High',
+                    category: 'finance',
+                },
+                {
+                    icon: 'sparkles',
+                    text: 'Major Sports Championship Results',
+                    category: 'sports',
+                },
+                {
+                    icon: 'globe',
+                    text: 'Breakthrough in Cancer Research',
+                    category: 'health',
+                },
+                {
+                    icon: 'code',
+                    text: 'Space Mission Makes New Discovery',
+                    category: 'science',
                 },
             ]);
         }
